@@ -1,1 +1,570 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareRoster | Hospital Duty Management</title>
+  <meta name="description" content="Hospital Staff Duty Roster Management System">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #142b3b;
+      --navy-light: #203d50;
+      --teal: #087f8c;
+      --teal-light: #e6f5f4;
+      --bg: #f5f7fa;
+      --white: #ffffff;
+      --text: #1b2b38;
+      --muted: #84919e;
+      --border: #e9edf1;
+      --green: #168568;
+      --amber: #b7791f;
+      --red: #c44e52;
+      --shadow: 0 4px 18px rgba(20, 43, 59, .035);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
+      font-size: 14px;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .app { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 245px;
+      background: var(--navy);
+      color: #d2dfe7;
+      padding: 27px 16px;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 10px 32px;
+      color: white;
+    }
+    .brand-mark {
+      width: 39px;
+      height: 39px;
+      background: #16a1a1;
+      color: white;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 25px;
+      font-weight: 700;
+    }
+    .brand-name {
+      font-family: Manrope, sans-serif;
+      font-weight: 800;
+      font-size: 19px;
+      letter-spacing: -.7px;
+    }
+    .brand-name span { color: #58d1c6; }
+    .brand-sub {
+      font-size: 10px;
+      color: #9aafbd;
+      margin-top: 3px;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+    }
+    .nav-label {
+      padding: 0 12px;
+      margin: 5px 0 12px;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      color: #8099a9;
+      text-transform: uppercase;
+    }
+    .nav { display: grid; gap: 5px; }
+    .nav button {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 13px;
+      width: 100%;
+      color: #b8cbd6;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      border-radius: 9px;
+      transition: .2s;
+    }
+    .nav button:hover { background: #203d50; color: white; }
+    .nav button.active {
+      color: white;
+      background: #087f8c;
+      box-shadow: 0 5px 14px #071d2a55;
+    }
+    .nav-icon {
+      width: 20px;
+      text-align: center;
+      font-size: 17px;
+    }
+    .sidebar-bottom { margin-top: auto; }
+    .help-card {
+      margin: 25px 4px 18px;
+      padding: 15px;
+      border: 1px solid #385365;
+      border-radius: 12px;
+      background: #1a3547;
+    }
+    .help-card strong { display: block; color: white; margin-bottom: 7px; }
+    .help-card p { color: #a9beca; font-size: 12px; line-height: 1.6; margin: 0 0 12px; }
+    .help-card button {
+      background: #294b5d; border: 0; color: white;
+      padding: 8px 10px; border-radius: 7px; width: 100%;
+    }
+    .admin-profile {
+      border-top: 1px solid #304a5b;
+      padding: 19px 5px 0;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: #d7efeb; color: #17675f; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .admin-profile strong { color: white; font-size: 12px; display: block; }
+    .admin-profile small { color: #9db2bf; display: block; margin-top: 4px; }
+
+    .main { min-width: 0; flex: 1; }
+    .topbar {
+      height: 76px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 35px;
+    }
+    .breadcrumb { color: var(--muted); font-size: 12px; }
+    .breadcrumb strong { color: var(--text); font-weight: 600; }
+    .top-actions { display: flex; align-items: center; gap: 17px; }
+    .icon-btn {
+      background: white; border: 1px solid var(--border);
+      width: 37px; height: 37px; border-radius: 10px;
+      color: #5e6e7b; position: relative;
+    }
+    .dot {
+      position: absolute; right: 7px; top: 7px;
+      height: 6px; width: 6px; background: #e36b70; border-radius: 50%;
+    }
+    .date-label { color: #687986; font-size: 12px; }
+    .mobile-menu { display: none; }
+
+    .content { padding: 32px 35px 40px; max-width: 1600px; margin: auto; }
+    .welcome {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 20px; margin-bottom: 27px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      font: 800 27px Manrope, sans-serif;
+      letter-spacing: -.9px; margin-bottom: 8px;
+    }
+    .welcome p { color: var(--muted); margin-bottom: 0; }
+    .welcome-actions { display: flex; gap: 10px; }
+    .btn {
+      border-radius: 9px; padding: 11px 15px; font-weight: 600;
+      border: 1px solid var(--border); background: white; color: #526370;
+    }
+    .btn-primary { color: white; background: var(--teal); border-color: var(--teal); }
+    .btn-primary:hover { background: #076b76; }
+    .btn:hover { filter: brightness(.97); }
+
+    .section-label {
+      font-size: 11px; color: #8a98a4; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1.2px;
+      margin-bottom: 13px;
+    }
+    .stats {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 17px; margin-bottom: 28px;
+    }
+    .stat-card {
+      background: white; border: 1px solid var(--border);
+      border-radius: 13px; padding: 20px;
+      box-shadow: var(--shadow); min-width: 0;
+    }
+    .stat-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+    .stat-name { color: #71818e; font-size: 12px; font-weight: 500; }
+    .stat-icon {
+      width: 37px; height: 37px; border-radius: 10px;
+      display: grid; place-items: center; font-size: 17px;
+    }
+    .icon-blue { background: #eaf1ff; }
+    .icon-green { background: #e5f6ef; }
+    .icon-teal { background: #e3f5f4; }
+    .icon-orange { background: #fff2df; }
+    .stat-number {
+      font: 800 29px Manrope, sans-serif; margin: 16px 0 8px;
+      letter-spacing: -1px;
+    }
+    .stat-foot { font-size: 11px; color: #8b98a3; }
+    .stat-foot span { color: var(--green); font-weight: 700; }
+
+    .grid-main {
+      display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(255px, .9fr);
+      gap: 20px; align-items: start;
+    }
+    .panel {
+      background: white; border: 1px solid var(--border);
+      border-radius: 13px; box-shadow: var(--shadow); min-width: 0;
+    }
+    .panel-header {
+      padding: 21px 22px; display: flex; justify-content: space-between;
+      align-items: center; gap: 12px; border-bottom: 1px solid #f0f2f5;
+    }
+    .panel-header h2 { font: 700 15px Manrope, sans-serif; margin: 0 0 5px; }
+    .panel-header p { font-size: 11px; color: var(--muted); margin: 0; }
+    .text-link { background: none; border: 0; color: var(--teal); font-weight: 700; font-size: 12px; white-space: nowrap; }
+    .filters { padding: 15px 20px; display: flex; gap: 9px; }
+    .search {
+      flex: 1; min-width: 0; padding: 10px 12px;
+      border: 1px solid var(--border); border-radius: 8px; outline: none;
+    }
+    .search:focus { border-color: #53b6b9; }
+    .filter-select {
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 9px; background: white; color: #61717e; max-width: 130px;
+    }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    th {
+      background: #f8fafb; color: #8a98a4; font-size: 10px;
+      text-transform: uppercase; letter-spacing: .65px;
+      font-weight: 700; text-align: left; padding: 12px 18px;
+    }
+    td { padding: 15px 18px; border-bottom: 1px solid #f0f2f5; font-size: 12px; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .person { display: flex; align-items: center; gap: 10px; }
+    .person .avatar { width: 33px; height: 33px; font-size: 10px; }
+    .person strong { display: block; font-size: 12px; font-weight: 600; }
+    .person small { display: block; color: #9aa5af; font-size: 10px; margin-top: 4px; }
+    .pill { display: inline-block; padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+    .pill-green { background: #e6f6ee; color: #218364; }
+    .pill-blue { background: #eaf1ff; color: #446bc0; }
+    .pill-amber { background: #fff3df; color: #a96f1a; }
+    .pill-red { background: #ffebeb; color: #bd4c54; }
+    .shift-time { color: #526370; font-size: 11px; }
+    .table-footer { border-top: 1px solid #f0f2f5; padding: 14px 20px; color: #8a98a4; font-size: 11px; }
+
+    .right-column { display: grid; gap: 20px; }
+    .coverage-body { padding: 21px; }
+    .coverage-summary { display: flex; justify-content: space-between; align-items: end; margin-bottom: 19px; }
+    .coverage-summary strong { font: 800 27px Manrope, sans-serif; }
+    .coverage-summary span { font-size: 11px; color: var(--muted); }
+    .coverage-row { margin: 17px 0; }
+    .coverage-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 9px; }
+    .coverage-label span:last-child { color: #7f8c97; font-size: 11px; }
+    .progress { background: #eef1f4; height: 7px; border-radius: 10px; overflow: hidden; }
+    .progress div { height: 100%; border-radius: 10px; }
+    .fill-teal { background: #159c9b; }
+    .fill-blue { background: #6589d7; }
+    .fill-orange { background: #e8a34e; }
+    .coverage-note { border-top: 1px solid #edf0f3; padding-top: 15px; margin-top: 20px; font-size: 11px; color: #7c8994; line-height: 1.6; }
+
+    .upcoming-list { padding: 6px 20px 15px; }
+    .upcoming-item { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #f0f2f5; }
+    .upcoming-item:last-child { border-bottom: 0; }
+    .date-box {
+      background: #edf7f7; color: var(--teal); width: 43px;
+      height: 46px; flex-shrink: 0; border-radius: 9px;
+      display: grid; place-content: center; text-align: center;
+    }
+    .date-box strong { font: 800 16px Manrope, sans-serif; }
+    .date-box small { font-size: 9px; text-transform: uppercase; }
+    .upcoming-info { flex: 1; min-width: 0; }
+    .upcoming-info strong { font-size: 12px; display: block; margin: 3px 0 6px; }
+    .upcoming-info small { color: #8996a1; font-size: 11px; }
+    .upcoming-count { color: var(--teal); font-size: 11px; font-weight: 700; white-space: nowrap; margin-top: 4px; }
+
+    .footer { text-align: center; padding: 24px 10px 0; font-size: 11px; color: #9aa5af; }
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; background: var(--navy);
+      color: white; padding: 13px 18px; border-radius: 10px;
+      box-shadow: 0 10px 30px #142b3b30; opacity: 0;
+      transform: translateY(10px); pointer-events: none; transition: .25s;
+      z-index: 20;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1150px) {
+      .sidebar { width: 215px; }
+      .content { padding: 26px 22px; }
+      .topbar { padding: 0 22px; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-main { grid-template-columns: 1fr; }
+      .right-column { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .app { display: block; }
+      .sidebar {
+        display: none; position: fixed; inset: 0 auto 0 0;
+        width: 260px; z-index: 30; box-shadow: 10px 0 40px #0002;
+      }
+      .sidebar.open { display: flex; }
+      .mobile-menu { display: inline-block; margin-right: 10px; }
+      .topbar { height: 65px; padding: 0 16px; }
+      .date-label { display: none; }
+      .content { padding: 24px 15px; }
+      .welcome { display: block; }
+      h1 { font-size: 23px; }
+      .welcome-actions { margin-top: 18px; }
+      .stats { gap: 10px; }
+      .stat-card { padding: 15px; }
+      .stat-number { font-size: 25px; }
+      .right-column { grid-template-columns: 1fr; }
+      .panel-header { padding: 17px; }
+      .filters { padding: 12px; }
+      th, td { padding: 12px; }
+      .top-actions { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">+</div>
+      <div>
+        <div class="brand-name">Care<span>Roster</span></div>
+        <div class="brand-sub">Staff management</div>
+      </div>
+    </div>
+
+    <div class="nav-label">Workspace</div>
+    <nav class="nav" aria-label="Main navigation">
+      <button class="active" data-page="Dashboard"><span class="nav-icon">◫</span>Dashboard</button>
+      <button data-page="Staff"><span class="nav-icon">♙</span>Staff Members</button>
+      <button data-page="Departments"><span class="nav-icon">▦</span>Departments</button>
+      <button data-page="Shifts"><span class="nav-icon">◷</span>Shift Management</button>
+      <button data-page="Duty Roster"><span class="nav-icon">▤</span>Duty Roster</button>
+      <button data-page="Reports"><span class="nav-icon">▥</span>Reports</button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="nav-label">System</div>
+      <nav class="nav">
+        <button data-page="Settings"><span class="nav-icon">⚙</span>Settings</button>
+      </nav>
+      <div class="help-card">
+        <strong>Need assistance?</strong>
+        <p>Manage your staff schedules with confidence.</p>
+        <button id="helpBtn">Project information ↗</button>
+      </div>
+      <div class="admin-profile">
+        <div class="avatar">AD</div>
+        <div><strong>System Administrator</strong><small>Administrator</small></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="breadcrumb">
+        <button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button>
+        Workspace&nbsp; / &nbsp;<strong id="breadcrumbPage">Dashboard</strong>
+      </div>
+      <div class="top-actions">
+        <span class="date-label" id="todayDate"></span>
+        <button class="icon-btn" id="notificationBtn" aria-label="Notifications">♧<span class="dot"></span></button>
+        <div class="avatar">AD</div>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="welcome">
+        <div>
+          <div class="section-label">Hospital administration</div>
+          <h1 id="welcomeTitle">Good day, Administrator 👋</h1>
+          <p>Here is an overview of your hospital staffing and duty schedule.</p>
+        </div>
+        <div class="welcome-actions">
+          <button class="btn" id="viewRosterBtn">View roster</button>
+          <button class="btn btn-primary" id="addStaffBtn">＋ Add staff member</button>
+        </div>
+      </div>
+
+      <div class="section-label">Overview at a glance</div>
+      <div class="stats">
+        <article class="stat-card">
+          <div class="stat-top"><span class="stat-name">Total staff members</span><span class="stat-icon icon-blue">♙</span></div>
+          <div class="stat-number" id="totalStaff">128</div>
+          <div class="stat-foot">Registered staff records</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-top"><span class="stat-name">On duty today</span><span class="stat-icon icon-green">✓</span></div>
+          <div class="stat-number" id="onDuty">34</div>
+          <div class="stat-foot">Across all departments</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-top"><span class="stat-name">Departments</span><span class="stat-icon icon-teal">▦</span></div>
+          <div class="stat-number" id="totalDepartments">8</div>
+          <div class="stat-foot">Hospital departments</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-top"><span class="stat-name">Open shifts</span><span class="stat-icon icon-orange">◷</span></div>
+          <div class="stat-number" id="openShifts">3</div>
+          <div class="stat-foot">Awaiting staff assignment</div>
+        </article>
+      </div>
+
+      <div class="grid-main">
+        <section class="panel">
+          <div class="panel-header">
+            <div><h2>Today's Duty Roster</h2><p>Staff assignments and shift status</p></div>
+            <button class="text-link" id="allRosterBtn">View all →</button>
+          </div>
+          <div class="filters">
+            <input class="search" id="searchInput" type="search" placeholder="⌕  Search staff or department..." aria-label="Search roster">
+            <select class="filter-select" id="shiftFilter" aria-label="Filter by shift">
+              <option value="all">All shifts</option>
+              <option value="Morning">Morning</option>
+              <option value="Afternoon">Afternoon</option>
+              <option value="Night">Night</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Staff member</th><th>Department</th><th>Shift</th><th>Time</th><th>Status</th></tr></thead>
+              <tbody id="rosterBody">
+                <tr data-shift="Morning"><td><div class="person"><div class="avatar">EA</div><div><strong>Esther Agyeman</strong><small>STF-001</small></div></div></td><td>Nursing</td><td><span class="pill pill-green">Morning</span></td><td class="shift-time">7:00 AM – 2:00 PM</td><td><span class="pill pill-green">On duty</span></td></tr>
+                <tr data-shift="Morning"><td><div class="person"><div class="avatar">KM</div><div><strong>Kwame Mensah</strong><small>STF-002</small></div></div></td><td>Laboratory</td><td><span class="pill pill-green">Morning</span></td><td class="shift-time">7:00 AM – 2:00 PM</td><td><span class="pill pill-green">On duty</span></td></tr>
+                <tr data-shift="Afternoon"><td><div class="person"><div class="avatar">AA</div><div><strong>Akosua Asante</strong><small>STF-003</small></div></div></td><td>Pharmacy</td><td><span class="pill pill-blue">Afternoon</span></td><td class="shift-time">2:00 PM – 9:00 PM</td><td><span class="pill pill-blue">Upcoming</span></td></tr>
+                <tr data-shift="Night"><td><div class="person"><div class="avatar">DO</div><div><strong>Daniel Owusu</strong><small>STF-004</small></div></div></td><td>Emergency</td><td><span class="pill pill-amber">Night</span></td><td class="shift-time">9:00 PM – 7:00 AM</td><td><span class="pill pill-amber">Scheduled</span></td></tr>
+                <tr data-shift="Morning"><td><div class="person"><div class="avatar">GF</div><div><strong>Grace Frimpong</strong><small>STF-005</small></div></div></td><td>Maternity</td><td><span class="pill pill-green">Morning</span></td><td class="shift-time">7:00 AM – 2:00 PM</td><td><span class="pill pill-green">On duty</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-footer" id="tableCount">Showing 5 sample assignments</div>
+        </section>
+
+        <div class="right-column">
+          <section class="panel">
+            <div class="panel-header"><div><h2>Shift Coverage</h2><p>Illustrative staffing coverage</p></div><span class="pill pill-green">Today</span></div>
+            <div class="coverage-body">
+              <div class="coverage-summary"><div><strong>85%</strong><br><span>Overall coverage</span></div><span>Target: 100%</span></div>
+              <div class="coverage-row"><div class="coverage-label"><span>Morning shift</span><span>92%</span></div><div class="progress"><div class="fill-teal" style="width:92%"></div></div></div>
+              <div class="coverage-row"><div class="coverage-label"><span>Afternoon shift</span><span>85%</span></div><div class="progress"><div class="fill-blue" style="width:85%"></div></div></div>
+              <div class="coverage-row"><div class="coverage-label"><span>Night shift</span><span>68%</span></div><div class="progress"><div class="fill-orange" style="width:68%"></div></div></div>
+              <div class="coverage-note">Sample figures for the interface preview. Live coverage will be calculated from saved roster assignments.</div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header"><div><h2>Upcoming Shifts</h2><p>Next scheduled duties</p></div><button class="text-link" id="shiftsBtn">View all →</button></div>
+            <div class="upcoming-list">
+              <div class="upcoming-item"><div class="date-box"><strong>12</strong><small>Oct</small></div><div class="upcoming-info"><strong>Morning shift</strong><small>General Nursing</small></div><div class="upcoming-count">12 staff</div></div>
+              <div class="upcoming-item"><div class="date-box"><strong>12</strong><small>Oct</small></div><div class="upcoming-info"><strong>Afternoon shift</strong><small>Outpatient Department</small></div><div class="upcoming-count">8 staff</div></div>
+              <div class="upcoming-item"><div class="date-box"><strong>12</strong><small>Oct</small></div><div class="upcoming-info"><strong>Night shift</strong><small>Emergency Department</small></div><div class="upcoming-count">6 staff</div></div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <footer class="footer">CareRoster · Hospital Staff Duty Roster Management System</footer>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const toast = document.getElementById("toast");
+  let toastTimer;
+
+  function notify(message) {
+    toast.textContent = message;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
+  }
+
+  document.getElementById("todayDate").textContent =
+    new Intl.DateTimeFormat("en-GH", {
+      weekday: "short", day: "numeric", month: "short", year: "numeric"
+    }).format(new Date());
+
+  const searchInput = document.getElementById("searchInput");
+  const shiftFilter = document.getElementById("shiftFilter");
+  const rosterRows = [...document.querySelectorAll("#rosterBody tr")];
+
+  function filterRoster() {
+    const term = searchInput.value.toLowerCase().trim();
+    const shift = shiftFilter.value;
+    let count = 0;
+
+    rosterRows.forEach(row => {
+      const matchesText = row.textContent.toLowerCase().includes(term);
+      const matchesShift = shift === "all" || row.dataset.shift === shift;
+      const visible = matchesText && matchesShift;
+      row.hidden = !visible;
+      if (visible) count++;
+    });
+
+    document.getElementById("tableCount").textContent =
+      `Showing ${count} of ${rosterRows.length} sample assignments`;
+  }
+
+  searchInput.addEventListener("input", filterRoster);
+  shiftFilter.addEventListener("change", filterRoster);
+
+  document.querySelectorAll("[data-page]").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll("[data-page]").forEach(item => item.classList.remove("active"));
+      button.classList.add("active");
+      const page = button.dataset.page;
+      document.getElementById("breadcrumbPage").textContent = page;
+
+      if (page === "Dashboard") {
+        document.getElementById("welcomeTitle").textContent = "Good day, Administrator 👋";
+        notify("Dashboard overview selected.");
+      } else {
+        notify(`${page} section selected. We'll implement this module next.`);
+      }
+
+      document.getElementById("sidebar").classList.remove("open");
+    });
+  });
+
+  document.getElementById("menuBtn").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.toggle("open");
+  });
+
+  document.getElementById("viewRosterBtn").addEventListener("click", () => {
+    document.querySelector('[data-page="Duty Roster"]').click();
+  });
+  document.getElementById("allRosterBtn").addEventListener("click", () => {
+    document.querySelector('[data-page="Duty Roster"]').click();
+  });
+  document.getElementById("shiftsBtn").addEventListener("click", () => {
+    document.querySelector('[data-page="Shifts"]').click();
+  });
+  document.getElementById("addStaffBtn").addEventListener("click", () => {
+    notify("Staff registration form is the next feature we'll build.");
+  });
+  document.getElementById("notificationBtn").addEventListener("click", () => {
+    notify("No new notifications.");
+  });
+  document.getElementById("helpBtn").addEventListener("click", () => {
+    notify("CareRoster manages staff, shifts and hospital duty schedules.");
+  });
+</script>
+</body>
+</html>
+
