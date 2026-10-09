@@ -978,3 +978,32 @@ footer {
         width: 100%;
     }
 }
+
+
+/* CareRoster form text visibility fix */
+#staffForm input,
+#staffForm select,
+#staffForm textarea {
+    color: #302c43 !important;
+    background-color: #ffffff !important;
+    -webkit-text-fill-color: #302c43;
+    caret-color: #7357e8;
+}
+
+#staffForm input::placeholder,
+#staffForm textarea::placeholder {
+    color: #9691a8 !important;
+    -webkit-text-fill-color: #9691a8;
+    opacity: 1;
+}
+
+#staffForm label {
+    color: #39354d !important;
+}
+
+#staffForm input:focus,
+#staffForm select:focus {
+    border-color: #7357e8;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(115, 87, 232, 0.12);
+}
