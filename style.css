@@ -778,3 +778,203 @@ footer {
     }
 }
 
+
+
+/* ==============================
+   CARE ROSTER — STAFF MODAL
+============================== */
+
+.modal-overlay[hidden] {
+    display: none !important;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(25, 20, 48, 0.48);
+    backdrop-filter: blur(5px);
+    overflow-y: auto;
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 580px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 30px;
+    background: #ffffff;
+    border: 1px solid #eeeafb;
+    border-radius: 20px;
+    box-shadow: 0 24px 80px rgba(36, 24, 79, 0.2);
+    animation: modalEnter 0.22s ease-out;
+}
+
+.modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 26px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0eef7;
+}
+
+.modal-header h2 {
+    margin: 0 0 7px;
+    color: #25213a;
+    font-family: 'Manrope', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.modal-header p {
+    margin: 0;
+    color: #858197;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.modal-close {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #eeebf6;
+    border-radius: 11px;
+    background: #faf9ff;
+    color: #777187;
+    font-size: 25px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #f0edff;
+    color: #7357e8;
+    transform: rotate(90deg);
+}
+
+#staffForm {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 16px;
+}
+
+#staffForm .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+#staffForm label {
+    color: #39354d;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#staffForm input,
+#staffForm select {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 46px;
+    padding: 0 13px;
+    border: 1px solid #e7e4f0;
+    border-radius: 10px;
+    outline: none;
+    background: #ffffff;
+    color: #302c43;
+    font: inherit;
+    font-size: 13px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#staffForm input::placeholder {
+    color: #aaa6b8;
+}
+
+#staffForm input:focus,
+#staffForm select:focus {
+    border-color: #8b73ed;
+    box-shadow: 0 0 0 3px rgba(115, 87, 232, 0.12);
+}
+
+.modal-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+    padding-top: 22px;
+    border-top: 1px solid #f0eef7;
+}
+
+.btn-secondary {
+    padding: 11px 18px;
+    border: 1px solid #e7e4f0;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #514b67;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: #f8f6ff;
+    border-color: #c9bdf8;
+}
+
+#staffForm .btn-primary {
+    padding: 12px 18px;
+    border: 0;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+@keyframes modalEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 540px) {
+    .modal-overlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .modal-card {
+        margin: auto 0;
+        padding: 22px 18px;
+        border-radius: 16px;
+    }
+
+    #staffForm {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .modal-actions button {
+        width: 100%;
+    }
+}
