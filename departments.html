@@ -8,131 +8,137 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <div class="app-layout">
 
-        <aside class="sidebar">
-            <a href="./index.html" class="brand">
-                <span class="brand-icon">C</span>
-                <span>Care<span class="brand-accent">Roster</span></span>
-            </a>
+<div class="app-layout">
 
-            <p class="sidebar-label">WORKSPACE</p>
+    <aside class="sidebar">
+        <a href="./index.html" class="brand">
+            <span class="brand-icon">C</span>
+            <span>Care<span class="brand-accent">Roster</span></span>
+        </a>
 
-            <nav class="sidebar-nav">
-                <a href="./index.html" class="nav-link"><span>▦</span> Dashboard</a>
-                <a href="./staff.html" class="nav-link"><span>♙</span> Staff Management</a>
-                <a href="./departments.html" class="nav-link active"><span>▤</span> Departments</a>
-                <a href="./shifts.html" class="nav-link"><span>◷</span> Shift Management</a>
-                <a href="./roster.html" class="nav-link"><span>▦</span> Duty Roster</a>
-                <a href="./reports.html" class="nav-link"><span>▥</span> Reports</a>
-                <a href="./settings.html" class="nav-link"><span>⚙</span> Settings</a>
-            </nav>
+        <p class="sidebar-label">WORKSPACE</p>
 
-            <div class="sidebar-bottom">
-                <div class="profile-avatar">A</div>
+        <nav class="sidebar-nav">
+            <a href="./index.html" class="nav-link"><span>▦</span> Dashboard</a>
+            <a href="./staff.html" class="nav-link"><span>♙</span> Staff Management</a>
+            <a href="./departments.html" class="nav-link active"><span>▤</span> Departments</a>
+            <a href="./shifts.html" class="nav-link"><span>◷</span> Shift Management</a>
+            <a href="./roster.html" class="nav-link"><span>▦</span> Duty Roster</a>
+            <a href="./reports.html" class="nav-link"><span>▥</span> Reports</a>
+            <a href="./settings.html" class="nav-link"><span>⚙</span> Settings</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="profile-avatar">A</div>
+            <div>
+                <strong>Administrator</strong>
+                <p>System Admin</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="breadcrumb">Workspace / Departments</p>
+                <h1>Departments</h1>
+                <p class="page-subtitle">
+                    Create and manage the departments within your hospital.
+                </p>
+            </div>
+
+            <button class="btn btn-primary" id="addDepartmentBtn" type="button">
+                + Add Department
+            </button>
+        </header>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <div class="stat-icon">▤</div>
+                <p>Total Departments</p>
+                <h2 id="totalDepartments">0</h2>
+                <span>Registered departments</span>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon">✓</div>
+                <p>Active Departments</p>
+                <h2 id="activeDepartments">0</h2>
+                <span>Currently active</span>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon">♙</div>
+                <p>Staff Assigned</p>
+                <h2 id="assignedStaff">0</h2>
+                <span>Staff linked to departments</span>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
                 <div>
-                    <strong>Administrator</strong>
-                    <p>System Admin</p>
+                    <h2>Department Directory</h2>
+                    <p>Manage department names, codes and operational status.</p>
                 </div>
             </div>
-        </aside>
 
-        <main class="main-content">
-            <header class="topbar">
-                <div>
-                    <p class="breadcrumb">Workspace / Departments</p>
-                    <h1>Departments</h1>
-                    <p class="page-subtitle">
-                        Organise hospital departments and their staff.
-                    </p>
+            <div class="toolbar">
+                <div class="search-box">
+                    <span>⌕</span>
+                    <input
+                        type="search"
+                        id="departmentSearch"
+                        placeholder="Search departments..."
+                        aria-label="Search departments"
+                    >
                 </div>
 
-                <button class="btn btn-primary" type="button">
-                    + Add Department
-                </button>
-            </header>
+                <select id="departmentStatusFilter" aria-label="Filter departments">
+                    <option value="">All statuses</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+            </div>
 
-            <section class="stats-grid">
-                <article class="stat-card">
-                    <div class="stat-icon">▤</div>
-                    <p>Total Departments</p>
-                    <h2>06</h2>
-                    <span>Hospital departments</span>
-                </article>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>DEPARTMENT</th>
+                            <th>DEPARTMENT CODE</th>
+                            <th>DESCRIPTION</th>
+                            <th>STAFF COUNT</th>
+                            <th>STATUS</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="departmentTableBody">
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                Loading departments...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                <article class="stat-card">
-                    <div class="stat-icon">♙</div>
-                    <p>Assigned Staff</p>
-                    <h2>00</h2>
-                    <span>Staff assigned to departments</span>
-                </article>
+            <div class="table-footer">
+                <span id="departmentCount">0 departments</span>
+            </div>
+        </section>
 
-                <article class="stat-card">
-                    <div class="stat-icon">✓</div>
-                    <p>Department Status</p>
-                    <h2>Active</h2>
-                    <span>Department overview</span>
-                </article>
-            </section>
+        <footer class="page-footer">
+            <span>© 2026 CareRoster</span>
+            <span>Hospital Staff Duty Roster Management System</span>
+        </footer>
 
-            <section class="panel">
-                <div class="panel-header">
-                    <div>
-                        <h2>Hospital Departments</h2>
-                        <p>Browse the departments configured in CareRoster.</p>
-                    </div>
-                </div>
+    </main>
+</div>
 
-                <div class="department-grid">
-                    <article class="department-card">
-                        <div class="department-icon">✚</div>
-                        <h3>Emergency</h3>
-                        <p>Emergency care and urgent patient treatment.</p>
-                        <span>Active Department</span>
-                    </article>
+<!-- The department form will be added in the next step. -->
 
-                    <article class="department-card">
-                        <div class="department-icon">♡</div>
-                        <h3>Nursing</h3>
-                        <p>Patient care, monitoring and nursing support.</p>
-                        <span>Active Department</span>
-                    </article>
-
-                    <article class="department-card">
-                        <div class="department-icon">✚</div>
-                        <h3>Pharmacy</h3>
-                        <p>Medication management and dispensing.</p>
-                        <span>Active Department</span>
-                    </article>
-
-                    <article class="department-card">
-                        <div class="department-icon">⚕</div>
-                        <h3>Laboratory</h3>
-                        <p>Medical tests and diagnostic services.</p>
-                        <span>Active Department</span>
-                    </article>
-
-                    <article class="department-card">
-                        <div class="department-icon">▤</div>
-                        <h3>Administration</h3>
-                        <p>Hospital administration and coordination.</p>
-                        <span>Active Department</span>
-                    </article>
-
-                    <article class="department-card">
-                        <div class="department-icon">✚</div>
-                        <h3>Outpatient</h3>
-                        <p>Consultations and outpatient services.</p>
-                        <span>Active Department</span>
-                    </article>
-                </div>
-            </section>
-
-            <footer class="page-footer">
-                <span>© 2026 CareRoster</span>
-                <span>Hospital Staff Duty Roster Management System</span>
-            </footer>
-        </main>
-    </div>
 </body>
 </html>
