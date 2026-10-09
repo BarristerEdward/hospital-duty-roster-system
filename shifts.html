@@ -1,0 +1,98 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shift Management | CareRoster</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="logo">Care<span>Roster</span></div>
+
+        <nav class="sidebar-nav">
+            <a href="./index.html">Dashboard</a>
+            <a href="./staff.html">Staff Management</a>
+            <a href="./departments.html">Departments</a>
+            <a href="./shifts.html" class="active">Shift Management</a>
+            <a href="./roster.html">Duty Roster</a>
+            <a href="./reports.html">Reports</a>
+            <a href="./settings.html">Settings</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1>Shift Management</h1>
+                <p>Manage hospital shifts and their working hours.</p>
+            </div>
+
+            <button id="addShiftBtn" class="primary-btn" type="button">
+                + Add Shift
+            </button>
+        </header>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Shifts</h3>
+                <p id="totalShifts">0</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Active Shifts</h3>
+                <p id="activeShifts">0</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Shift Types</h3>
+                <p id="shiftTypes">0</p>
+            </div>
+        </section>
+
+        <section class="content-card">
+            <div class="table-toolbar">
+                <input
+                    type="search"
+                    id="shiftSearch"
+                    placeholder="Search shifts..."
+                    aria-label="Search shifts"
+                >
+
+                <select id="shiftStatusFilter" aria-label="Filter by status">
+                    <option value="all">All Statuses</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Shift Name</th>
+                            <th>Code</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="shiftTableBody"></tbody>
+                </table>
+            </div>
+
+            <p id="shiftCount">0 shifts found</p>
+        </section>
+    </main>
+</div>
+
+<script src="./shifts.js"></script>
+</body>
+</html>
+```
