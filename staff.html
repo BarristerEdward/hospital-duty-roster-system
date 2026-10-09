@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Management | CareRoster</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <a href="./index.html" class="brand">
+            <span class="brand-icon">C</span>
+            <span>Care<span class="brand-accent">Roster</span></span>
+        </a>
+
+        <p class="sidebar-label">WORKSPACE</p>
+
+        <nav class="sidebar-nav">
+            <a href="./index.html" class="nav-link">
+                <span>▦</span> Dashboard
+            </a>
+            <a href="./staff.html" class="nav-link active">
+                <span>♙</span> Staff Management
+            </a>
+            <a href="./departments.html" class="nav-link">
+                <span>▤</span> Departments
+            </a>
+            <a href="./shifts.html" class="nav-link">
+                <span>◷</span> Shift Management
+            </a>
+            <a href="./roster.html" class="nav-link">
+                <span>▦</span> Duty Roster
+            </a>
+            <a href="./reports.html" class="nav-link">
+                <span>▥</span> Reports
+            </a>
+            <a href="./settings.html" class="nav-link">
+                <span>⚙</span> Settings
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="profile-avatar">A</div>
+            <div>
+                <strong>Administrator</strong>
+                <p>System Admin</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="breadcrumb">Workspace / Staff</p>
+                <h1>Staff Management</h1>
+                <p class="page-subtitle">
+                    Manage hospital employees and their department assignments.
+                </p>
+            </div>
+
+            <button class="btn btn-primary" id="addStaffBtn" type="button">
+                <span>＋</span> Add Staff Member
+            </button>
+        </header>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <div class="stat-icon">♙</div>
+                <p>Total Staff</p>
+                <h2 id="totalStaff">0</h2>
+                <span>Registered employees</span>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon">✚</div>
+                <p>Departments</p>
+                <h2 id="totalDepartments">0</h2>
+                <span>Departments represented</span>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon">✓</div>
+                <p>Active Staff</p>
+                <h2 id="activeStaff">0</h2>
+                <span>Currently active</span>
+            </article>
+        </section>
+
+        <section class="panel staff-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>Hospital Staff</h2>
+                    <p>View and manage your staff directory.</p>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-box">
+                    <span>⌕</span>
+                    <input
+                        type="search"
+                        id="staffSearch"
+                        placeholder="Search by name, staff ID or email..."
+                        aria-label="Search staff"
+                    >
+                </div>
+
+                <select id="departmentFilter" aria-label="Filter by department">
+                    <option value="">All Departments</option>
+                </select>
+
+                <select id="statusFilter" aria-label="Filter by status">
+                    <option value="">All Statuses</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>STAFF MEMBER</th>
+                            <th>STAFF ID</th>
+                            <th>DEPARTMENT</th>
+                            <th>ROLE</th>
+                            <th>STATUS</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staffTableBody">
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                No staff members added yet.
+                                <br>
+                                Click "Add Staff Member" to get started.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <span id="staffCount">Showing 0 staff members</span>
+            </div>
+        </section>
+
+        <footer class="page-footer">
+            <span>© 2026 CareRoster</span>
+            <span>Hospital Staff Duty Roster Management System</span>
+        </footer>
+
+    </main>
+</div>
+
+</body>
+</html>
