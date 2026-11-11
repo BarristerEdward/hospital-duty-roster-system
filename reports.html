@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports | CareRoster</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <span>+</span> CareRoster
+        </div>
+
+        <p class="sidebar-label">WORKSPACE</p>
+
+        <nav class="sidebar-nav">
+            <a href="index.html">Dashboard</a>
+            <a href="staff.html">Staff Management</a>
+            <a href="departments.html">Departments</a>
+            <a href="shifts.html">Shift Management</a>
+            <a href="roster.html">Duty Roster</a>
+            <a href="reports.html" class="active">Reports</a>
+            <a href="settings.html">Settings</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p>CareRoster</p>
+            <small>Hospital Duty Management</small>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div>
+                <p class="breadcrumb">Workspace / Reports</p>
+                <h2>Reports</h2>
+            </div>
+
+            <div class="topbar-right">
+                <span class="user-avatar">A</span>
+            </div>
+
+        </header>
+
+
+        <!-- REPORT CONTENT -->
+        <section class="reports-content">
+
+            <div class="page-heading">
+
+                <div>
+                    <h1>Reports & Analytics</h1>
+                    <p>Review hospital staff duty assignments and shift activities.</p>
+                </div>
+
+                <button type="button" id="printReportBtn">
+                    Print Report
+                </button>
+
+            </div>
+
+
+            <!-- REPORT STATISTICS -->
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <p>Total Assignments</p>
+                    <h2 id="reportTotalAssignments">0</h2>
+                    <span>All recorded duties</span>
+                </div>
+
+                <div class="stat-card">
+                    <p>Morning Shifts</p>
+                    <h2 id="reportMorningShifts">0</h2>
+                    <span>Morning duty assignments</span>
+                </div>
+
+                <div class="stat-card">
+                    <p>Afternoon Shifts</p>
+                    <h2 id="reportAfternoonShifts">0</h2>
+                    <span>Afternoon duty assignments</span>
+                </div>
+
+                <div class="stat-card">
+                    <p>Night Shifts</p>
+                    <h2 id="reportNightShifts">0</h2>
+                    <span>Night duty assignments</span>
+                </div>
+
+            </div>
+
+
+            <!-- FILTER SECTION -->
+            <div class="report-filter-card">
+
+                <div>
+                    <h3>Filter Reports</h3>
+                    <p>Select a date range to review duty records.</p>
+                </div>
+
+                <div class="report-filters">
+
+                    <div>
+                        <label for="reportStartDate">Start Date</label>
+                        <input type="date" id="reportStartDate">
+                    </div>
+
+                    <div>
+                        <label for="reportEndDate">End Date</label>
+                        <input type="date" id="reportEndDate">
+                    </div>
+
+                    <div>
+                        <label for="reportDepartment">Department</label>
+                        <select id="reportDepartment">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+
+                    <button type="button" id="generateReportBtn">
+                        Generate Report
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- REPORT TABLE -->
+            <div class="report-table-card">
+
+                <div class="report-table-header">
+
+                    <div>
+                        <h3>Duty Assignment Report</h3>
+                        <p>Detailed records of scheduled hospital duties.</p>
+                    </div>
+
+                    <span id="reportRecordCount">0 Records</span>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Staff Name</th>
+                                <th>Staff ID</th>
+                                <th>Department</th>
+                                <th>Duty Date</th>
+                                <th>Shift</th>
+                                <th>Working Hours</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="reportsTableBody">
+
+                            <tr>
+                                <td colspan="7">
+                                    No report records available.
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="./reports.js"></script>
+
+</body>
+</html>
