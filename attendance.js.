@@ -1,0 +1,568 @@
+// ==========================================
+// CAREROSTER - STAFF ATTENDANCE MANAGEMENT
+// ==========================================
+
+const ROSTER_KEY = "careroster_roster";
+const ATTENDANCE_KEY = "careroster_attendance";
+
+let roster = [];
+let attendanceRecords = [];
+
+
+// ==========================================
+// HTML ELEMENTS
+// ==========================================
+
+const attendanceDate = document.getElementById("attendanceDate");
+const attendanceShiftFilter = document.getElementById("attendanceShiftFilter");
+const attendanceSearch = document.getElementById("attendanceSearch");
+
+const attendanceTableBody = document.getElementById("attendanceTableBody");
+
+const scheduledStaff = document.getElementById("scheduledStaff");
+const presentStaff = document.getElementById("presentStaff");
+const lateStaff = document.getElementById("lateStaff");
+const absentStaff = document.getElementById("absentStaff");
+
+const attendanceDateLabel = document.getElementById("attendanceDateLabel");
+const attendanceRecordCount = document.getElementById("attendanceRecordCount");
+const attendanceFooterText = document.getElementById("attendanceFooterText");
+
+const refreshAttendanceBtn = document.getElementById("refreshAttendanceBtn");
+const markAllPresentBtn = document.getElementById("markAllPresentBtn");
+const saveAttendanceBtn = document.getElementById("saveAttendanceBtn");
+const printAttendanceBtn = document.getElementById("printAttendanceBtn");
+
+
+// ==========================================
+// LOAD DATA SAFELY
+// ==========================================
+
+function loadData() {
+
+    try {
+        const savedRoster = JSON.parse(
+            localStorage.getItem(ROSTER_KEY)
+        );
+
+        roster = Array.isArray(savedRoster) ? savedRoster : [];
+
+    } catch {
+        roster = [];
+    }
+
+    try {
+        const savedAttendance = JSON.parse(
+            localStorage.getItem(ATTENDANCE_KEY)
+        );
+
+        attendanceRecords = Array.isArray(savedAttendance)
+            ? savedAttendance
+            : [];
+
+    } catch {
+        attendanceRecords = [];
+    }
+
+}
+
+
+// ==========================================
+// SAVE ATTENDANCE
+// ==========================================
+
+function saveAttendanceData() {
+
+    try {
+
+        localStorage.setItem(
+            ATTENDANCE_KEY,
+            JSON.stringify(attendanceRecords)
+        );
+
+        return true;
+
+    } catch {
+
+        alert("Unable to save attendance. Check browser storage.");
+
+        return false;
+
+    }
+
+}
+
+
+// ==========================================
+// DATE HELPERS
+// ==========================================
+
+function getToday() {
+
+    const today = new Date();
+
+    const year = today.getFullYear();
+
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+
+    const day = String(today.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+
+}
+
+
+function formatAttendanceDate(date) {
+
+    if (!date) return "-";
+
+    const parts = date.split("-");
+
+    if (parts.length !== 3) return date;
+
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+
+}
+
+
+// ==========================================
+// GET SCHEDULED STAFF
+// ==========================================
+
+function getScheduledStaff() {
+
+    const selectedDate = attendanceDate.value;
+
+    const selectedShift = attendanceShiftFilter.value;
+
+    return roster.filter(item => {
+
+        const matchesDate = item.date === selectedDate;
+
+        const matchesShift =
+            !selectedShift || item.shift === selectedShift;
+
+        return matchesDate && matchesShift;
+
+    });
+
+}
+
+
+// ==========================================
+// FIND EXISTING ATTENDANCE
+// ==========================================
+
+function findAttendance(assignment) {
+
+    return attendanceRecords.find(record =>
+
+        record.staffId === assignment.staffId &&
+        record.date === assignment.date &&
+        record.shift === assignment.shift
+
+    );
+
+}
+
+
+// ==========================================
+// GET ATTENDANCE STATUS
+// ==========================================
+
+function getAttendanceStatus(assignment) {
+
+    const record = findAttendance(assignment);
+
+    return record ? record.status : "";
+
+}
+
+
+// ==========================================
+// UPDATE STATISTICS
+// ==========================================
+
+function updateAttendanceStatistics() {
+
+    const scheduled = getScheduledStaff();
+
+    let present = 0;
+    let late = 0;
+    let absent = 0;
+
+    scheduled.forEach(assignment => {
+
+        const status = getAttendanceStatus(assignment);
+
+        if (status === "Present") present++;
+
+        if (status === "Late") late++;
+
+        if (status === "Absent") absent++;
+
+    });
+
+    scheduledStaff.textContent = scheduled.length;
+
+    presentStaff.textContent = present;
+
+    lateStaff.textContent = late;
+
+    absentStaff.textContent = absent;
+
+    attendanceDateLabel.textContent =
+        attendanceDate.value === getToday()
+            ? "Today's Attendance"
+            : `Attendance: ${formatAttendanceDate(attendanceDate.value)}`;
+
+}
+
+
+// ==========================================
+// RENDER ATTENDANCE TABLE
+// ==========================================
+
+function renderAttendance() {
+
+    const scheduled = getScheduledStaff();
+
+    const search = attendanceSearch.value.trim().toLowerCase();
+
+    const filtered = scheduled.filter(item => {
+
+        return [
+
+            item.staffName,
+            item.staffId,
+            item.department,
+            item.shift
+
+        ].some(value =>
+            String(value || "").toLowerCase().includes(search)
+        );
+
+    });
+
+    attendanceTableBody.replaceChildren();
+
+    if (filtered.length === 0) {
+
+        const row = document.createElement("tr");
+
+        const cell = document.createElement("td");
+
+        cell.colSpan = 7;
+
+        cell.className = "empty-state";
+
+        cell.textContent = roster.length === 0
+            ? "No duty assignments found. Create assignments in the Duty Roster first."
+            : scheduled.length === 0
+                ? "No staff members are scheduled for this date and shift."
+                : "No staff members match your search.";
+
+        row.appendChild(cell);
+
+        attendanceTableBody.appendChild(row);
+
+    }
+
+    filtered.forEach(assignment => {
+
+        const row = document.createElement("tr");
+
+        const record = findAttendance(assignment);
+
+        const nameCell = document.createElement("td");
+
+        const name = document.createElement("strong");
+
+        name.textContent = assignment.staffName;
+
+        nameCell.appendChild(name);
+
+
+        const idCell = document.createElement("td");
+
+        idCell.textContent = assignment.staffId;
+
+
+        const departmentCell = document.createElement("td");
+
+        departmentCell.textContent = assignment.department;
+
+
+        const shiftCell = document.createElement("td");
+
+        shiftCell.textContent = assignment.shift;
+
+
+        const timeCell = document.createElement("td");
+
+        timeCell.textContent =
+            `${assignment.start || "-"} - ${assignment.end || "-"}`;
+
+
+        // STATUS SELECT
+
+        const statusCell = document.createElement("td");
+
+        const statusSelect = document.createElement("select");
+
+        statusSelect.className = "attendance-status-select";
+
+        statusSelect.dataset.assignmentId = assignment.id;
+
+        const options = [
+
+            { value: "", label: "Select Status" },
+
+            { value: "Present", label: "Present" },
+
+            { value: "Late", label: "Late" },
+
+            { value: "Absent", label: "Absent" }
+
+        ];
+
+        options.forEach(option => {
+
+            const element = document.createElement("option");
+
+            element.value = option.value;
+
+            element.textContent = option.label;
+
+            statusSelect.appendChild(element);
+
+        });
+
+        statusSelect.value = record ? record.status : "";
+
+        statusCell.appendChild(statusSelect);
+
+
+        // REMARKS
+
+        const remarksCell = document.createElement("td");
+
+        const remarksInput = document.createElement("input");
+
+        remarksInput.type = "text";
+
+        remarksInput.placeholder = "Optional remark";
+
+        remarksInput.className = "attendance-remarks-input";
+
+        remarksInput.maxLength = 150;
+
+        remarksInput.dataset.assignmentId = assignment.id;
+
+        remarksInput.value = record ? record.remarks || "" : "";
+
+        remarksCell.appendChild(remarksInput);
+
+
+        row.append(
+
+            nameCell,
+            idCell,
+            departmentCell,
+            shiftCell,
+            timeCell,
+            statusCell,
+            remarksCell
+
+        );
+
+        attendanceTableBody.appendChild(row);
+
+    });
+
+    attendanceRecordCount.textContent =
+        `${filtered.length} staff member${filtered.length === 1 ? "" : "s"}`;
+
+    attendanceFooterText.textContent =
+        `${filtered.length} scheduled staff displayed for ${formatAttendanceDate(attendanceDate.value)}.`;
+
+    updateAttendanceStatistics();
+
+}
+
+
+// ==========================================
+// SAVE SELECTED ATTENDANCE
+// ==========================================
+
+function saveAttendance() {
+
+    const scheduled = getScheduledStaff();
+
+    const selectedDate = attendanceDate.value;
+
+    let savedCount = 0;
+
+    const statusInputs = document.querySelectorAll(
+        ".attendance-status-select"
+    );
+
+    for (const select of statusInputs) {
+
+        if (!select.value) {
+
+            alert("Please select an attendance status for every displayed staff member.");
+
+            return;
+
+        }
+
+    }
+
+    scheduled.forEach(assignment => {
+
+        const select = document.querySelector(
+            `.attendance-status-select[data-assignment-id="${CSS.escape(String(assignment.id))}"]`
+        );
+
+        const remarksInput = document.querySelector(
+            `.attendance-remarks-input[data-assignment-id="${CSS.escape(String(assignment.id))}"]`
+        );
+
+        if (!select) return;
+
+        const existingIndex = attendanceRecords.findIndex(record =>
+
+            record.staffId === assignment.staffId &&
+            record.date === assignment.date &&
+            record.shift === assignment.shift
+
+        );
+
+        const attendanceData = {
+
+            id: existingIndex >= 0
+                ? attendanceRecords[existingIndex].id
+                : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+
+            staffId: assignment.staffId,
+
+            staffName: assignment.staffName,
+
+            department: assignment.department,
+
+            date: selectedDate,
+
+            shift: assignment.shift,
+
+            start: assignment.start,
+
+            end: assignment.end,
+
+            status: select.value,
+
+            remarks: remarksInput ? remarksInput.value.trim() : "",
+
+            recordedAt: new Date().toISOString()
+
+        };
+
+        if (existingIndex >= 0) {
+
+            attendanceRecords[existingIndex] = attendanceData;
+
+        } else {
+
+            attendanceRecords.push(attendanceData);
+
+        }
+
+        savedCount++;
+
+    });
+
+    if (saveAttendanceData()) {
+
+        renderAttendance();
+
+        alert(`${savedCount} attendance record(s) saved successfully.`);
+
+    }
+
+}
+
+
+// ==========================================
+// MARK ALL PRESENT
+// ==========================================
+
+function markAllPresent() {
+
+    const selects = document.querySelectorAll(
+        ".attendance-status-select"
+    );
+
+    if (selects.length === 0) {
+
+        alert("There are no scheduled staff members to mark.");
+
+        return;
+
+    }
+
+    selects.forEach(select => {
+
+        select.value = "Present";
+
+    });
+
+    updateAttendanceStatistics();
+
+}
+
+
+// ==========================================
+// REFRESH DATA
+// ==========================================
+
+function refreshAttendance() {
+
+    loadData();
+
+    renderAttendance();
+
+}
+
+
+// ==========================================
+// EVENT LISTENERS
+// ==========================================
+
+attendanceDate.addEventListener("change", renderAttendance);
+
+attendanceShiftFilter.addEventListener("change", renderAttendance);
+
+attendanceSearch.addEventListener("input", renderAttendance);
+
+refreshAttendanceBtn.addEventListener("click", refreshAttendance);
+
+markAllPresentBtn.addEventListener("click", markAllPresent);
+
+saveAttendanceBtn.addEventListener("click", saveAttendance);
+
+printAttendanceBtn.addEventListener("click", () => {
+
+    window.print();
+
+});
+
+
+// ==========================================
+// INITIALIZE
+// ==========================================
+
+attendanceDate.value = getToday();
+
+loadData();
+
+renderAttendance();
