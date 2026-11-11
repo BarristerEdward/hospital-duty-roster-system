@@ -3,241 +3,127 @@
 // ==========================================
 
 const ROSTER_KEY = "careroster_roster";
+const LEAVE_KEY = "careroster_availability";
 
 let assignments = JSON.parse(localStorage.getItem(ROSTER_KEY)) || [];
 
+let editingAssignmentId = null;
+
+
+// ==========================================
+// HTML ELEMENTS
+// ==========================================
+
 const tableBody = document.getElementById("rosterTableBody");
+
 const totalAssignments = document.getElementById("totalAssignments");
 const morningAssignments = document.getElementById("morningAssignments");
 const afternoonAssignments = document.getElementById("afternoonAssignments");
 const nightAssignments = document.getElementById("nightAssignments");
-const rosterCount = document.getElementById("rosterCount");
 
 const rosterDate = document.getElementById("rosterDate");
 const rosterSearch = document.getElementById("rosterSearch");
 const rosterShiftFilter = document.getElementById("rosterShiftFilter");
+
+const rosterCount = document.getElementById("rosterCount");
 
 const addAssignmentBtn = document.getElementById("addAssignmentBtn");
 const printRosterBtn = document.getElementById("printRosterBtn");
 
 
 // ==========================================
-// SAVE DATA
+// SAVE ASSIGNMENTS
 // ==========================================
 
-function saveAssignments() {
+function saveRosterData() {
     localStorage.setItem(ROSTER_KEY, JSON.stringify(assignments));
 }
 
 
 // ==========================================
-// CREATE ASSIGNMENT FORM
+// ESCAPE HTML
 // ==========================================
 
-function createAssignmentForm() {
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[character]);
+}
 
-    if (document.getElementById("assignmentModal")) return;
 
-    const modal = document.createElement("div");
+// ==========================================
+// FORMAT DATE
+// ==========================================
 
-    modal.id = "assignmentModal";
+function formatDate(date) {
 
-    modal.innerHTML = `
-        <div class="assignment-modal-content">
+    if (!date) return "-";
 
-            <div class="assignment-modal-header">
-                <div>
-                    <h2 id="assignmentTitle">Create Assignment</h2>
-                    <p>Enter staff duty information below.</p>
-                </div>
+    const parts = date.split("-");
 
-                <button type="button" id="closeAssignmentModal">&times;</button>
-            </div>
+    if (parts.length !== 3) return date;
 
-            <form id="assignmentForm">
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
 
-                <div class="assignment-form-grid">
 
-                    <div>
-                        <label>Staff Name</label>
-                        <input type="text" id="assignmentStaffName"
-                        placeholder="Enter staff name" required>
-                    </div>
+// ==========================================
+// SHIFT DEFAULT TIMES
+// ==========================================
 
-                    <div>
-                        <label>Staff ID</label>
-                        <input type="text" id="assignmentStaffId"
-                        placeholder="Enter staff ID" required>
-                    </div>
+function getShiftTimes(shift) {
 
-                    <div>
-                        <label>Department</label>
-                        <input type="text" id="assignmentDepartment"
-                        placeholder="Enter department" required>
-                    </div>
+    const times = {
+        Morning: {
+            start: "07:00",
+            end: "15:00"
+        },
 
-                    <div>
-                        <label>Duty Date</label>
-                        <input type="date" id="assignmentDate" required>
-                    </div>
+        Afternoon: {
+            start: "15:00",
+            end: "23:00"
+        },
 
-                    <div>
-                        <label>Shift</label>
-                        <select id="assignmentShift" required>
-                            <option value="">Select shift</option>
-                            <option value="Morning">Morning</option>
-                            <option value="Afternoon">Afternoon</option>
-                            <option value="Night">Night</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label>Start Time</label>
-                        <input type="time" id="assignmentStart" required>
-                    </div>
-
-                    <div>
-                        <label>End Time</label>
-                        <input type="time" id="assignmentEnd" required>
-                    </div>
-
-                </div>
-
-                <div class="assignment-form-actions">
-                    <button type="button" id="cancelAssignment">Cancel</button>
-                    <button type="submit" id="saveAssignment">Save Assignment</button>
-                </div>
-
-            </form>
-
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    document.getElementById("closeAssignmentModal")
-        .addEventListener("click", closeAssignmentForm);
-
-    document.getElementById("cancelAssignment")
-        .addEventListener("click", closeAssignmentForm);
-
-    document.getElementById("assignmentForm")
-        .addEventListener("submit", saveAssignment);
-
-    document.getElementById("assignmentShift")
-        .addEventListener("change", setShiftTime);
-
-    modal.addEventListener("click", function(event) {
-        if (event.target === modal) {
-            closeAssignmentForm();
+        Night: {
+            start: "23:00",
+            end: "07:00"
         }
-    });
-}
+    };
 
-
-// ==========================================
-// OPEN AND CLOSE FORM
-// ==========================================
-
-function openAssignmentForm(id = null) {
-
-    createAssignmentForm();
-
-    const modal = document.getElementById("assignmentModal");
-    const form = document.getElementById("assignmentForm");
-
-    form.reset();
-
-    document.getElementById("assignmentTitle").textContent =
-        id ? "Edit Assignment" : "Create Assignment";
-
-    document.getElementById("assignmentDate").value =
-        new Date().toISOString().split("T")[0];
-
-    if (id) {
-
-        const item = assignments.find(a => a.id === id);
-
-        if (!item) return;
-
-        document.getElementById("assignmentStaffName").value = item.staffName;
-        document.getElementById("assignmentStaffId").value = item.staffId;
-        document.getElementById("assignmentDepartment").value = item.department;
-        document.getElementById("assignmentDate").value = item.date;
-        document.getElementById("assignmentShift").value = item.shift;
-        document.getElementById("assignmentStart").value = item.start;
-        document.getElementById("assignmentEnd").value = item.end;
-
-        form.dataset.editId = id;
-
-    } else {
-        delete form.dataset.editId;
-    }
-
-    modal.style.display = "flex";
-}
-
-
-function closeAssignmentForm() {
-
-    const modal = document.getElementById("assignmentModal");
-
-    if (modal) {
-        modal.style.display = "none";
-    }
-}
-
-
-// ==========================================
-// AUTOMATIC SHIFT TIMES
-// ==========================================
-
-function setShiftTime() {
-
-    const shift = document.getElementById("assignmentShift").value;
-
-    const start = document.getElementById("assignmentStart");
-    const end = document.getElementById("assignmentEnd");
-
-    if (shift === "Morning") {
-        start.value = "07:00";
-        end.value = "15:00";
-    }
-
-    if (shift === "Afternoon") {
-        start.value = "15:00";
-        end.value = "23:00";
-    }
-
-    if (shift === "Night") {
-        start.value = "23:00";
-        end.value = "07:00";
-    }
-}
-
-
-// ==========================================
-// CONVERT DUTY TIME TO DATE
-// ==========================================
-
-function getAssignmentTimes(date, start, end) {
-
-    const startTime = new Date(`${date}T${start}`);
-    const endTime = new Date(`${date}T${end}`);
-
-    if (endTime <= startTime) {
-        endTime.setDate(endTime.getDate() + 1);
-    }
-
-    return {
-        start: startTime,
-        end: endTime
+    return times[shift] || {
+        start: "07:00",
+        end: "15:00"
     };
 }
 
 
 // ==========================================
-// CHECK SHIFT CONFLICTS
+// HANDLE OVERNIGHT ASSIGNMENTS
+// ==========================================
+
+function getAssignmentTimes(date, start, end) {
+
+    const startDate = new Date(`${date}T${start}`);
+
+    const endDate = new Date(`${date}T${end}`);
+
+    if (endDate <= startDate) {
+        endDate.setDate(endDate.getDate() + 1);
+    }
+
+    return {
+        start: startDate,
+        end: endDate
+    };
+}
+
+
+// ==========================================
+// CHECK OVERLAPPING SHIFTS
 // ==========================================
 
 function checkShiftConflict(staffId, date, start, end, editId = null) {
@@ -246,9 +132,11 @@ function checkShiftConflict(staffId, date, start, end, editId = null) {
 
     return assignments.some(item => {
 
+        if (item.id === editId) return false;
+
         if (
-            item.staffId.toLowerCase() !== staffId.toLowerCase() ||
-            item.id === editId
+            String(item.staffId).trim().toLowerCase() !==
+            String(staffId).trim().toLowerCase()
         ) {
             return false;
         }
@@ -261,10 +149,252 @@ function checkShiftConflict(staffId, date, start, end, editId = null) {
 
         return (
             newAssignment.start < existingAssignment.end &&
-            existingAssignment.start < newAssignment.end
+            newAssignment.end > existingAssignment.start
         );
+    });
+}
+
+
+// ==========================================
+// CHECK APPROVED STAFF LEAVE
+// ==========================================
+
+function checkApprovedLeaveConflict(staffId, date, start, end) {
+
+    const leaveRecords = JSON.parse(
+        localStorage.getItem(LEAVE_KEY)
+    ) || [];
+
+    const assignment = getAssignmentTimes(date, start, end);
+
+    const staffID = String(staffId).trim().toLowerCase();
+
+    return leaveRecords.some(leave => {
+
+        if (leave.status !== "Approved") return false;
+
+        if (
+            String(leave.staffId).trim().toLowerCase() !== staffID
+        ) {
+            return false;
+        }
+
+        const leaveStart = new Date(`${leave.startDate}T00:00:00`);
+
+        const leaveEnd = new Date(`${leave.endDate}T23:59:59`);
+
+        return (
+            assignment.start <= leaveEnd &&
+            assignment.end > leaveStart
+        );
+    });
+}
+
+
+// ==========================================
+// CREATE ASSIGNMENT FORM
+// ==========================================
+
+function createAssignmentForm(editId = null) {
+
+    editingAssignmentId = editId;
+
+    const existing = assignments.find(
+        item => item.id === editId
+    );
+
+    const modal = document.createElement("div");
+
+    modal.id = "assignmentModal";
+
+    modal.innerHTML = `
+
+        <div class="assignment-modal-content">
+
+            <div class="assignment-modal-header">
+
+                <div>
+                    <h2 id="assignmentTitle">
+                        ${existing ? "Edit Assignment" : "Create Duty Assignment"}
+                    </h2>
+
+                    <p>
+                        Enter the staff member's duty information.
+                    </p>
+                </div>
+
+                <button type="button" id="closeAssignmentModal">
+                    &times;
+                </button>
+
+            </div>
+
+            <form id="assignmentForm">
+
+                <div class="assignment-form-grid">
+
+                    <div>
+                        <label>Staff Name *</label>
+
+                        <input
+                            type="text"
+                            id="assignmentStaffName"
+                            placeholder="Enter staff name"
+                            required
+                            value="${escapeHTML(existing?.staffName || "")}"
+                        >
+                    </div>
+
+                    <div>
+                        <label>Staff ID *</label>
+
+                        <input
+                            type="text"
+                            id="assignmentStaffId"
+                            placeholder="Enter staff ID"
+                            required
+                            value="${escapeHTML(existing?.staffId || "")}"
+                        >
+                    </div>
+
+                    <div>
+                        <label>Department *</label>
+
+                        <input
+                            type="text"
+                            id="assignmentDepartment"
+                            placeholder="Enter department"
+                            required
+                            value="${escapeHTML(existing?.department || "")}"
+                        >
+                    </div>
+
+                    <div>
+                        <label>Duty Date *</label>
+
+                        <input
+                            type="date"
+                            id="assignmentDate"
+                            required
+                            value="${escapeHTML(existing?.date || "")}"
+                        >
+                    </div>
+
+                    <div>
+                        <label>Shift *</label>
+
+                        <select id="assignmentShift" required>
+
+                            <option value="">Select shift</option>
+
+                            <option value="Morning"
+                                ${existing?.shift === "Morning" ? "selected" : ""}>
+                                Morning
+                            </option>
+
+                            <option value="Afternoon"
+                                ${existing?.shift === "Afternoon" ? "selected" : ""}>
+                                Afternoon
+                            </option>
+
+                            <option value="Night"
+                                ${existing?.shift === "Night" ? "selected" : ""}>
+                                Night
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Start Time *</label>
+
+                        <input
+                            type="time"
+                            id="assignmentStart"
+                            required
+                            value="${escapeHTML(existing?.start || "07:00")}"
+                        >
+                    </div>
+
+                    <div>
+                        <label>End Time *</label>
+
+                        <input
+                            type="time"
+                            id="assignmentEnd"
+                            required
+                            value="${escapeHTML(existing?.end || "15:00")}"
+                        >
+                    </div>
+
+                </div>
+
+                <div class="assignment-form-actions">
+
+                    <button type="button" id="cancelAssignment">
+                        Cancel
+                    </button>
+
+                    <button type="submit" id="saveAssignment">
+                        ${existing ? "Update Assignment" : "Save Assignment"}
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+
+    // CLOSE MODAL
+
+    function closeModal() {
+        modal.remove();
+        editingAssignmentId = null;
+    }
+
+    document.getElementById("closeAssignmentModal")
+        .addEventListener("click", closeModal);
+
+    document.getElementById("cancelAssignment")
+        .addEventListener("click", closeModal);
+
+    modal.addEventListener("click", event => {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+
+    // AUTOMATIC SHIFT TIMES
+
+    const shiftInput = document.getElementById("assignmentShift");
+
+    shiftInput.addEventListener("change", () => {
+
+        const times = getShiftTimes(shiftInput.value);
+
+        document.getElementById("assignmentStart").value = times.start;
+
+        document.getElementById("assignmentEnd").value = times.end;
 
     });
+
+
+    // SAVE FORM
+
+    document.getElementById("assignmentForm")
+        .addEventListener("submit", event => {
+
+            event.preventDefault();
+
+            saveAssignment(closeModal);
+
+        });
+
 }
 
 
@@ -272,166 +402,107 @@ function checkShiftConflict(staffId, date, start, end, editId = null) {
 // SAVE ASSIGNMENT
 // ==========================================
 
-function saveAssignment(event) {
-
-    event.preventDefault();
-
-    const form = event.target;
-    const editId = form.dataset.editId;
+function saveAssignment(closeModal) {
 
     const staffName = document.getElementById("assignmentStaffName").value.trim();
+
     const staffId = document.getElementById("assignmentStaffId").value.trim();
+
     const department = document.getElementById("assignmentDepartment").value.trim();
+
     const date = document.getElementById("assignmentDate").value;
+
     const shift = document.getElementById("assignmentShift").value;
+
     const start = document.getElementById("assignmentStart").value;
+
     const end = document.getElementById("assignmentEnd").value;
 
+    const editId = editingAssignmentId;
+
+
     if (!staffName || !staffId || !department || !date || !shift || !start || !end) {
-        alert("Please complete all fields.");
+
+        alert("Please complete all required fields.");
+
         return;
     }
 
+
     if (start === end) {
+
         alert("Start time and end time cannot be the same.");
+
         return;
     }
+
+
+    // CHECK OVERLAPPING SHIFTS
 
     if (checkShiftConflict(staffId, date, start, end, editId)) {
 
+        alert("This staff member already has an overlapping duty assignment.");
+
+        return;
+    }
+
+
+    // CHECK APPROVED LEAVE
+
+    if (checkApprovedLeaveConflict(staffId, date, start, end)) {
+
         alert(
-            "Scheduling Conflict!\n\nThis staff member already has a duty assignment during the selected time."
+            "Assignment blocked! This staff member has approved leave during this period."
         );
 
         return;
     }
 
+
     const assignment = {
+
         id: editId || Date.now().toString(),
+
         staffName,
+
         staffId,
+
         department,
+
         date,
+
         shift,
+
         start,
+
         end,
+
         status: "Assigned"
+
     };
+
 
     if (editId) {
 
-        const index = assignments.findIndex(a => a.id === editId);
-
-        if (index !== -1) {
-            assignments[index] = assignment;
-        }
+        assignments = assignments.map(item =>
+            item.id === editId ? assignment : item
+        );
 
     } else {
+
         assignments.push(assignment);
+
     }
 
-    saveAssignments();
+
+    saveRosterData();
+
     renderRoster();
-    closeAssignmentForm();
-
-    alert(editId ? "Assignment updated successfully." : "Assignment created successfully.");
-}
-
-
-// ==========================================
-// RENDER ROSTER TABLE
-// ==========================================
-
-function renderRoster() {
-
-    const search = rosterSearch.value.toLowerCase();
-    const selectedDate = rosterDate.value;
-    const selectedShift = rosterShiftFilter.value;
-
-    const filtered = assignments.filter(item => {
-
-        const matchesSearch =
-            item.staffName.toLowerCase().includes(search) ||
-            item.staffId.toLowerCase().includes(search) ||
-            item.department.toLowerCase().includes(search);
-
-        const matchesDate = !selectedDate || item.date === selectedDate;
-        const matchesShift = !selectedShift || item.shift === selectedShift;
-
-        return matchesSearch && matchesDate && matchesShift;
-    });
-
-    tableBody.innerHTML = "";
-
-    if (filtered.length === 0) {
-
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="8">
-                    <div class="empty-roster">
-                        <div class="empty-icon">▤</div>
-                        <h3>No duty assignments found</h3>
-                        <p>Try changing your search or create a new assignment.</p>
-                    </div>
-                </td>
-            </tr>
-        `;
-
-    } else {
-
-        filtered.forEach(item => {
-
-            const initials = item.staffName
-                .split(" ")
-                .map(word => word[0])
-                .join("")
-                .substring(0, 2)
-                .toUpperCase();
-
-            const row = document.createElement("tr");
-
-            row.innerHTML = `
-                <td>
-                    <div class="staff-cell">
-                        <div class="staff-avatar">${escapeHTML(initials)}</div>
-                        <div>
-                            <div class="staff-name">${escapeHTML(item.staffName)}</div>
-                            <div class="staff-role">Hospital Staff</div>
-                        </div>
-                    </div>
-                </td>
-
-                <td>${escapeHTML(item.staffId)}</td>
-                <td>${escapeHTML(item.department)}</td>
-                <td>${formatDate(item.date)}</td>
-
-                <td>
-                    <span class="shift-badge ${item.shift.toLowerCase()}">
-                        ${escapeHTML(item.shift)}
-                    </span>
-                </td>
-
-                <td>${escapeHTML(item.start)} - ${escapeHTML(item.end)}</td>
-
-                <td>
-                    <span class="status-badge">${escapeHTML(item.status)}</span>
-                </td>
-
-                <td>
-                    <button type="button" data-action="edit" data-id="${escapeHTML(item.id)}">Edit</button>
-                    <button type="button" data-action="delete" data-id="${escapeHTML(item.id)}">Delete</button>
-                </td>
-            `;
-
-            tableBody.appendChild(row);
-        });
-
-    }
 
     updateStatistics();
 
-    rosterCount.textContent =
-        `${filtered.length} ${filtered.length === 1 ? "assignment" : "assignments"}`;
+    closeModal();
+
 }
 
 
@@ -443,148 +514,179 @@ function updateStatistics() {
 
     totalAssignments.textContent = assignments.length;
 
-    morningAssignments.textContent =
-        assignments.filter(a => a.shift === "Morning").length;
+    morningAssignments.textContent = assignments.filter(
+        item => item.shift === "Morning"
+    ).length;
 
-    afternoonAssignments.textContent =
-        assignments.filter(a => a.shift === "Afternoon").length;
+    afternoonAssignments.textContent = assignments.filter(
+        item => item.shift === "Afternoon"
+    ).length;
 
-    nightAssignments.textContent =
-        assignments.filter(a => a.shift === "Night").length;
+    nightAssignments.textContent = assignments.filter(
+        item => item.shift === "Night"
+    ).length;
+
 }
 
 
 // ==========================================
-// EDIT AND DELETE
+// RENDER ROSTER TABLE
 // ==========================================
 
-tableBody.addEventListener("click", function(event) {
+function renderRoster() {
+
+    const search = rosterSearch.value.toLowerCase();
+
+    const selectedDate = rosterDate.value;
+
+    const selectedShift = rosterShiftFilter.value;
+
+
+    const filteredAssignments = assignments.filter(item => {
+
+        const matchesSearch =
+
+            item.staffName.toLowerCase().includes(search) ||
+
+            item.staffId.toLowerCase().includes(search) ||
+
+            item.department.toLowerCase().includes(search);
+
+
+        const matchesDate =
+            !selectedDate || item.date === selectedDate;
+
+
+        const matchesShift =
+            !selectedShift || item.shift === selectedShift;
+
+
+        return matchesSearch && matchesDate && matchesShift;
+
+    });
+
+
+    rosterCount.textContent =
+        `${filteredAssignments.length} assignment${filteredAssignments.length !== 1 ? "s" : ""}`;
+
+
+    if (filteredAssignments.length === 0) {
+
+        tableBody.innerHTML = `
+
+            <tr>
+                <td colspan="8" class="empty-state">
+                    No duty assignments found.
+                </td>
+            </tr>
+
+        `;
+
+        return;
+    }
+
+
+    tableBody.innerHTML = filteredAssignments.map(item => `
+
+        <tr>
+
+            <td>
+                <strong>${escapeHTML(item.staffName)}</strong>
+            </td>
+
+            <td>${escapeHTML(item.staffId)}</td>
+
+            <td>${escapeHTML(item.department)}</td>
+
+            <td>${formatDate(item.date)}</td>
+
+            <td>${escapeHTML(item.shift)}</td>
+
+            <td>${escapeHTML(item.start)} - ${escapeHTML(item.end)}</td>
+
+            <td>
+                <span class="status-badge">
+                    ${escapeHTML(item.status || "Assigned")}
+                </span>
+            </td>
+
+            <td>
+
+                <button
+                    class="edit-btn"
+                    data-action="edit"
+                    data-id="${escapeHTML(item.id)}">
+                    Edit
+                </button>
+
+                <button
+                    class="delete-btn"
+                    data-action="delete"
+                    data-id="${escapeHTML(item.id)}">
+                    Delete
+                </button>
+
+            </td>
+
+        </tr>
+
+    `).join("");
+
+}
+
+
+// ==========================================
+// EDIT AND DELETE ASSIGNMENTS
+// ==========================================
+
+tableBody.addEventListener("click", event => {
 
     const button = event.target.closest("button[data-action]");
 
     if (!button) return;
 
     const id = button.dataset.id;
+
     const action = button.dataset.action;
 
+    const assignment = assignments.find(
+        item => item.id === id
+    );
+
+    if (!assignment) return;
+
+
     if (action === "edit") {
-        openAssignmentForm(id);
+
+        createAssignmentForm(id);
+
     }
+
 
     if (action === "delete") {
 
-        const confirmDelete = confirm("Are you sure you want to delete this assignment?");
+        if (confirm(`Delete the duty assignment for ${assignment.staffName}?`)) {
 
-        if (!confirmDelete) return;
+            assignments = assignments.filter(
+                item => item.id !== id
+            );
 
-        assignments = assignments.filter(item => item.id !== id);
+            saveRosterData();
 
-        saveAssignments();
-        renderRoster();
+            renderRoster();
+
+            updateStatistics();
+
+        }
+
     }
 
 });
 
 
 // ==========================================
-// FORMAT DATE
+// SEARCH AND FILTERS
 // ==========================================
-
-function formatDate(date) {
-
-    if (!date) return "";
-
-    return new Date(date + "T00:00:00").toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-    });
-}
-
-
-// ==========================================
-// PREVENT HTML INJECTION
-// ==========================================
-
-function escapeHTML(value) {
-
-    return String(value).replace(/[&<>"']/g, character => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-    })[character]);
-
-}
-
-
-// ==========================================
-// PRINT ROSTER
-// ==========================================
-
-printRosterBtn.addEventListener("click", function() {
-
-    const printWindow = window.open("", "_blank");
-
-    if (!printWindow) {
-        alert("Please allow pop-ups to print the roster.");
-        return;
-    }
-
-    const rows = Array.from(tableBody.querySelectorAll("tr"))
-        .filter(row => row.querySelector(".staff-name"))
-        .map(row => `<tr>${Array.from(row.cells)
-            .slice(0, 7)
-            .map(cell => `<td>${escapeHTML(cell.innerText)}</td>`)
-            .join("")}</tr>`)
-        .join("");
-
-    printWindow.document.write(`
-        <html>
-        <head>
-            <title>CareRoster Duty Schedule</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 30px; }
-                h1 { color: #6558e8; }
-                table { width: 100%; border-collapse: collapse; margin-top: 25px; }
-                th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-                th { background: #f0edff; }
-            </style>
-        </head>
-        <body>
-            <h1>CareRoster</h1>
-            <h2>Hospital Staff Duty Schedule</h2>
-            <p>Generated: ${new Date().toLocaleDateString()}</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Staff Member</th>
-                        <th>Staff ID</th>
-                        <th>Department</th>
-                        <th>Duty Date</th>
-                        <th>Shift</th>
-                        <th>Time</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>${rows}</tbody>
-            </table>
-        </body>
-        </html>
-    `);
-
-    printWindow.document.close();
-    printWindow.print();
-
-});
-
-
-// ==========================================
-// EVENT LISTENERS
-// ==========================================
-
-addAssignmentBtn.addEventListener("click", () => openAssignmentForm());
 
 rosterSearch.addEventListener("input", renderRoster);
 
@@ -594,11 +696,31 @@ rosterShiftFilter.addEventListener("change", renderRoster);
 
 
 // ==========================================
-// INITIALISE PAGE
+// ADD ASSIGNMENT BUTTON
 // ==========================================
 
-createAssignmentForm();
+addAssignmentBtn.addEventListener("click", () => {
 
-rosterDate.value = new Date().toISOString().split("T")[0];
+    createAssignmentForm();
+
+});
+
+
+// ==========================================
+// PRINT ROSTER
+// ==========================================
+
+printRosterBtn.addEventListener("click", () => {
+
+    window.print();
+
+});
+
+
+// ==========================================
+// INITIALIZE ROSTER
+// ==========================================
+
+updateStatistics();
 
 renderRoster();
