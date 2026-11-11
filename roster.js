@@ -1,6 +1,8 @@
-// ==========================================
-// CAREROSTER - DUTY ROSTER MANAGEMENT
-// ==========================================
+// ======================================================
+// CAREROSTER - HOSPITAL DUTY ROSTER MANAGEMENT
+// ======================================================
+
+"use strict";
 
 const ROSTER_KEY = "careroster_roster";
 const LEAVE_KEY = "careroster_availability";
@@ -9,30 +11,32 @@ let assignments = [];
 let editingAssignmentId = null;
 
 
-// ==========================================
-// LOAD SAVED ASSIGNMENTS SAFELY
-// ==========================================
+// ======================================================
+// SAFE LOCAL STORAGE LOADING
+// ======================================================
 
-try {
-    const savedAssignments = localStorage.getItem(ROSTER_KEY);
+function loadAssignments() {
+    try {
+        const saved = localStorage.getItem(ROSTER_KEY);
 
-    assignments = savedAssignments
-        ? JSON.parse(savedAssignments)
-        : [];
+        if (!saved) return [];
 
-    if (!Array.isArray(assignments)) {
-        assignments = [];
+        const parsed = JSON.parse(saved);
+
+        return Array.isArray(parsed) ? parsed : [];
+
+    } catch (error) {
+        console.error("Could not load roster:", error);
+        return [];
     }
-
-} catch (error) {
-    console.error("Error loading roster data:", error);
-    assignments = [];
 }
 
+assignments = loadAssignments();
 
-// ==========================================
+
+// ======================================================
 // HTML ELEMENTS
-// ==========================================
+// ======================================================
 
 const tableBody = document.getElementById("rosterTableBody");
 
@@ -41,21 +45,21 @@ const morningAssignments = document.getElementById("morningAssignments");
 const afternoonAssignments = document.getElementById("afternoonAssignments");
 const nightAssignments = document.getElementById("nightAssignments");
 
+const rosterCount = document.getElementById("rosterCount");
+
 const rosterDate = document.getElementById("rosterDate");
 const rosterSearch = document.getElementById("rosterSearch");
 const rosterShiftFilter = document.getElementById("rosterShiftFilter");
-
-const rosterCount = document.getElementById("rosterCount");
 
 const addAssignmentBtn = document.getElementById("addAssignmentBtn");
 const printRosterBtn = document.getElementById("printRosterBtn");
 
 
-// ==========================================
+// ======================================================
 // SAVE ASSIGNMENTS
-// ==========================================
+// ======================================================
 
-function saveRosterData() {
+function saveAssignments() {
     try {
         localStorage.setItem(
             ROSTER_KEY,
@@ -65,31 +69,37 @@ function saveRosterData() {
         return true;
 
     } catch (error) {
-        console.error("Error saving roster:", error);
-        alert("Unable to save assignment. Please check your browser storage.");
+        console.error("Could not save assignments:", error);
+
+        alert("Unable to save assignment. Please check browser storage.");
+
         return false;
     }
 }
 
 
-// ==========================================
-// ESCAPE HTML
-// ==========================================
+// ======================================================
+// HTML ESCAPING
+// ======================================================
 
 function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, character => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-    })[character]);
+    return String(value ?? "").replace(/[&<>"']/g, character => {
+        const entities = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        };
+
+        return entities[character];
+    });
 }
 
 
-// ==========================================
-// FORMAT DATE
-// ==========================================
+// ======================================================
+// DATE FORMATTING
+// ======================================================
 
 function formatDate(date) {
     if (!date) return "-";
@@ -102,13 +112,13 @@ function formatDate(date) {
 }
 
 
-// ==========================================
-// SHIFT DEFAULT TIMES
-// ==========================================
+// ======================================================
+// SHIFT TIMES
+// ======================================================
 
-function getShiftTimes(shift) {
+function setShiftTime(shift) {
 
-    const times = {
+    const shiftTimes = {
         Morning: {
             start: "07:00",
             end: "15:00"
@@ -125,44 +135,68 @@ function getShiftTimes(shift) {
         }
     };
 
-    return times[shift] || {
+    return shiftTimes[shift] || {
         start: "07:00",
         end: "15:00"
     };
 }
 
 
-// ==========================================
-// HANDLE OVERNIGHT ASSIGNMENTS
-// ==========================================
+// ======================================================
+// CONVERT ASSIGNMENT TIMES
+// ======================================================
 
 function getAssignmentTimes(date, start, end) {
 
-    const startDate = new Date(`${date}T${start}:00`);
-    const endDate = new Date(`${date}T${end}:00`);
+    const startTime = new Date(`${date}T${start}:00`);
+    const endTime = new Date(`${date}T${end}:00`);
 
-    if (endDate <= startDate) {
-        endDate.setDate(endDate.getDate() + 1);
+    if (endTime <= startTime) {
+        endTime.setDate(endTime.getDate() + 1);
     }
 
     return {
-        start: startDate,
-        end: endDate
+        start: startTime,
+        end: endTime
     };
 }
 
 
-// ==========================================
-// CHECK OVERLAPPING SHIFTS
-// ==========================================
+// ======================================================
+// CHECK DUPLICATE ASSIGNMENTS
+// ======================================================
 
-function checkShiftConflict(staffId, date, start, end, editId = null) {
-
-    const newAssignment = getAssignmentTimes(date, start, end);
+function checkDuplicate(staffId, date, editId = null) {
 
     return assignments.some(item => {
 
-        if (item.id === editId) return false;
+        if (String(item.id) === String(editId)) {
+            return false;
+        }
+
+        return (
+            String(item.staffId).trim().toLowerCase() ===
+                String(staffId).trim().toLowerCase() &&
+            item.date === date
+        );
+
+    });
+}
+
+
+// ======================================================
+// CHECK OVERLAPPING SHIFTS
+// ======================================================
+
+function checkShiftConflict(staffId, date, start, end, editId = null) {
+
+    const newShift = getAssignmentTimes(date, start, end);
+
+    return assignments.some(item => {
+
+        if (String(item.id) === String(editId)) {
+            return false;
+        }
 
         if (
             String(item.staffId).trim().toLowerCase() !==
@@ -171,53 +205,57 @@ function checkShiftConflict(staffId, date, start, end, editId = null) {
             return false;
         }
 
-        const existingAssignment = getAssignmentTimes(
+        const existingShift = getAssignmentTimes(
             item.date,
             item.start,
             item.end
         );
 
         return (
-            newAssignment.start < existingAssignment.end &&
-            newAssignment.end > existingAssignment.start
+            newShift.start < existingShift.end &&
+            newShift.end > existingShift.start
         );
+
     });
 }
 
 
-// ==========================================
-// CHECK APPROVED STAFF LEAVE
-// ==========================================
+// ======================================================
+// CHECK APPROVED LEAVE
+// ======================================================
 
-function checkApprovedLeaveConflict(staffId, date, start, end) {
+function checkApprovedLeave(staffId, date, start, end) {
 
     let leaveRecords = [];
 
     try {
-        leaveRecords = JSON.parse(
-            localStorage.getItem(LEAVE_KEY)
-        ) || [];
+        const savedLeave = localStorage.getItem(LEAVE_KEY);
+
+        leaveRecords = savedLeave ? JSON.parse(savedLeave) : [];
 
         if (!Array.isArray(leaveRecords)) {
             leaveRecords = [];
         }
 
     } catch (error) {
-        console.error("Error loading leave records:", error);
+        console.error("Could not load leave records:", error);
         leaveRecords = [];
     }
 
-    const assignment = getAssignmentTimes(date, start, end);
-
     const staffID = String(staffId).trim().toLowerCase();
+
+    const assignmentTime = getAssignmentTimes(date, start, end);
 
     return leaveRecords.some(leave => {
 
-        if (leave.status !== "Approved") return false;
-
         if (
-            String(leave.staffId).trim().toLowerCase() !== staffID
+            String(leave.staffId).trim().toLowerCase() !== staffID ||
+            leave.status !== "Approved"
         ) {
+            return false;
+        }
+
+        if (!leave.startDate || !leave.endDate) {
             return false;
         }
 
@@ -225,16 +263,213 @@ function checkApprovedLeaveConflict(staffId, date, start, end) {
         const leaveEnd = new Date(`${leave.endDate}T23:59:59`);
 
         return (
-            assignment.start <= leaveEnd &&
-            assignment.end > leaveStart
+            assignmentTime.start <= leaveEnd &&
+            assignmentTime.end > leaveStart
         );
+
     });
 }
 
 
-// ==========================================
+// ======================================================
+// ADD MODAL STYLES
+// ======================================================
+
+function addModalStyles() {
+
+    if (document.getElementById("rosterModalStyles")) return;
+
+    const style = document.createElement("style");
+
+    style.id = "rosterModalStyles";
+
+    style.textContent = `
+
+        #assignmentModal {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(20, 24, 40, 0.65);
+            overflow-y: auto;
+        }
+
+        .assignment-modal-content {
+            background: #ffffff;
+            color: #20243a;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 28px;
+            border-radius: 14px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        }
+
+        .assignment-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .assignment-modal-header h2 {
+            margin: 0 0 7px;
+            font-size: 22px;
+            color: #20243a;
+        }
+
+        .assignment-modal-header p {
+            margin: 0;
+            color: #777b8e;
+            font-size: 13px;
+        }
+
+        #closeAssignmentModal {
+            border: none;
+            background: #f0f1f7;
+            color: #333;
+            font-size: 25px;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .assignment-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .assignment-form-grid label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 7px;
+            color: #33384d;
+        }
+
+        .assignment-form-grid input,
+        .assignment-form-grid select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            border: 1px solid #dfe1eb;
+            border-radius: 8px;
+            background: #fff;
+            color: #20243a;
+            font: inherit;
+            outline: none;
+        }
+
+        .assignment-form-grid input:focus,
+        .assignment-form-grid select:focus {
+            border-color: #6558e8;
+            box-shadow: 0 0 0 3px rgba(101, 88, 232, 0.1);
+        }
+
+        .assignment-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .assignment-form-actions button {
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        #cancelAssignment {
+            background: #f0f1f7;
+            color: #33384d;
+        }
+
+        #saveAssignment {
+            background: #6558e8;
+            color: white;
+        }
+
+        .empty-roster {
+            text-align: center;
+            padding: 35px 15px;
+        }
+
+        .empty-roster h3 {
+            margin: 10px 0;
+            color: #33384d;
+        }
+
+        .empty-roster p {
+            color: #777b8e;
+            font-size: 13px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #e8f8ef;
+            color: #23834c;
+            font-size: 12px;
+        }
+
+        .edit-btn,
+        .delete-btn {
+            border: none;
+            padding: 7px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 2px;
+        }
+
+        .edit-btn {
+            background: #eeecff;
+            color: #6558e8;
+        }
+
+        .delete-btn {
+            background: #fff0f0;
+            color: #d64545;
+        }
+
+        @media (max-width: 550px) {
+
+            .assignment-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .assignment-modal-content {
+                padding: 20px;
+            }
+
+            .assignment-form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .assignment-form-actions button {
+                width: 100%;
+            }
+
+        }
+
+    `;
+
+    document.head.appendChild(style);
+}
+
+
+// ======================================================
 // CREATE ASSIGNMENT FORM
-// ==========================================
+// ======================================================
 
 function createAssignmentForm(editId = null) {
 
@@ -243,8 +478,10 @@ function createAssignmentForm(editId = null) {
     editingAssignmentId = editId;
 
     const existing = assignments.find(
-        item => item.id === editId
+        item => String(item.id) === String(editId)
     );
+
+    addModalStyles();
 
     const modal = document.createElement("div");
 
@@ -257,13 +494,13 @@ function createAssignmentForm(editId = null) {
             <div class="assignment-modal-header">
 
                 <div>
-                    <h2>
-                        ${existing ? "Edit Assignment" : "Create Duty Assignment"}
+
+                    <h2 id="assignmentTitle">
+                        ${existing ? "Edit Duty Assignment" : "Create Duty Assignment"}
                     </h2>
 
-                    <p>
-                        Enter the staff member's duty information.
-                    </p>
+                    <p>Enter the staff member's duty information.</p>
+
                 </div>
 
                 <button type="button" id="closeAssignmentModal">
@@ -272,59 +509,64 @@ function createAssignmentForm(editId = null) {
 
             </div>
 
+
             <form id="assignmentForm">
 
                 <div class="assignment-form-grid">
 
                     <div>
-                        <label>Staff Name *</label>
+                        <label for="assignmentStaffName">Staff Name *</label>
 
                         <input
                             type="text"
                             id="assignmentStaffName"
                             placeholder="Enter staff name"
-                            required
                             value="${escapeHTML(existing?.staffName || "")}"
+                            required
                         >
                     </div>
 
+
                     <div>
-                        <label>Staff ID *</label>
+                        <label for="assignmentStaffId">Staff ID *</label>
 
                         <input
                             type="text"
                             id="assignmentStaffId"
                             placeholder="Enter staff ID"
-                            required
                             value="${escapeHTML(existing?.staffId || "")}"
+                            required
                         >
                     </div>
 
+
                     <div>
-                        <label>Department *</label>
+                        <label for="assignmentDepartment">Department *</label>
 
                         <input
                             type="text"
                             id="assignmentDepartment"
                             placeholder="Enter department"
-                            required
                             value="${escapeHTML(existing?.department || "")}"
+                            required
                         >
                     </div>
 
+
                     <div>
-                        <label>Duty Date *</label>
+                        <label for="assignmentDate">Duty Date *</label>
 
                         <input
                             type="date"
                             id="assignmentDate"
+                            value="${escapeHTML(existing?.date || rosterDate.value || "")}"
                             required
-                            value="${escapeHTML(existing?.date || "")}"
                         >
                     </div>
 
+
                     <div>
-                        <label>Shift *</label>
+                        <label for="assignmentShift">Shift *</label>
 
                         <select id="assignmentShift" required>
 
@@ -348,29 +590,32 @@ function createAssignmentForm(editId = null) {
                         </select>
                     </div>
 
+
                     <div>
-                        <label>Start Time *</label>
+                        <label for="assignmentStart">Start Time *</label>
 
                         <input
                             type="time"
                             id="assignmentStart"
-                            required
                             value="${escapeHTML(existing?.start || "07:00")}"
+                            required
                         >
                     </div>
 
+
                     <div>
-                        <label>End Time *</label>
+                        <label for="assignmentEnd">End Time *</label>
 
                         <input
                             type="time"
                             id="assignmentEnd"
-                            required
                             value="${escapeHTML(existing?.end || "15:00")}"
+                            required
                         >
                     </div>
 
                 </div>
+
 
                 <div class="assignment-form-actions">
 
@@ -387,64 +632,74 @@ function createAssignmentForm(editId = null) {
             </form>
 
         </div>
+
     `;
+
 
     document.body.appendChild(modal);
 
 
     // CLOSE MODAL
 
-    function closeModal() {
+    function closeAssignmentForm() {
+
         modal.remove();
+
         editingAssignmentId = null;
+
     }
 
+
     document.getElementById("closeAssignmentModal")
-        .addEventListener("click", closeModal);
+        .addEventListener("click", closeAssignmentForm);
+
 
     document.getElementById("cancelAssignment")
-        .addEventListener("click", closeModal);
+        .addEventListener("click", closeAssignmentForm);
+
 
     modal.addEventListener("click", event => {
+
         if (event.target === modal) {
-            closeModal();
+            closeAssignmentForm();
         }
+
     });
 
 
     // AUTOMATIC SHIFT TIMES
 
-    const shiftInput = document.getElementById("assignmentShift");
+    document.getElementById("assignmentShift")
+        .addEventListener("change", event => {
 
-    shiftInput.addEventListener("change", () => {
+            const times = setShiftTime(event.target.value);
 
-        const times = getShiftTimes(shiftInput.value);
+            document.getElementById("assignmentStart").value = times.start;
 
-        document.getElementById("assignmentStart").value = times.start;
-        document.getElementById("assignmentEnd").value = times.end;
+            document.getElementById("assignmentEnd").value = times.end;
 
-    });
+        });
 
 
-    // SAVE FORM
+    // FORM SUBMISSION
 
     document.getElementById("assignmentForm")
         .addEventListener("submit", event => {
 
             event.preventDefault();
 
-            saveAssignment(closeModal);
+            saveAssignment(closeAssignmentForm);
 
         });
 
 }
 
 
-// ==========================================
+// ======================================================
 // SAVE ASSIGNMENT
-// ==========================================
+// ======================================================
 
-function saveAssignment(closeModal) {
+function saveAssignment(closeForm) {
 
     const staffName = document.getElementById("assignmentStaffName").value.trim();
 
@@ -479,7 +734,13 @@ function saveAssignment(closeModal) {
     }
 
 
-    // CHECK OVERLAPPING SHIFTS
+    if (checkDuplicate(staffId, date, editId)) {
+
+        alert("This staff member already has an assignment on this date.");
+
+        return;
+    }
+
 
     if (checkShiftConflict(staffId, date, start, end, editId)) {
 
@@ -489,13 +750,9 @@ function saveAssignment(closeModal) {
     }
 
 
-    // CHECK APPROVED LEAVE
+    if (checkApprovedLeave(staffId, date, start, end)) {
 
-    if (checkApprovedLeaveConflict(staffId, date, start, end)) {
-
-        alert(
-            "Assignment blocked! This staff member has approved leave during this period."
-        );
+        alert("This staff member has approved leave during this period.");
 
         return;
     }
@@ -521,7 +778,7 @@ function saveAssignment(closeModal) {
     if (editId) {
 
         assignments = assignments.map(item =>
-            item.id === editId ? assignment : item
+            String(item.id) === String(editId) ? assignment : item
         );
 
     } else {
@@ -531,48 +788,32 @@ function saveAssignment(closeModal) {
     }
 
 
-    if (!saveRosterData()) return;
+    if (!saveAssignments()) return;
+
 
     renderRoster();
+
     updateStatistics();
 
-    closeModal();
+    closeForm();
 
-    alert(editId ? "Assignment updated successfully." : "Assignment created successfully.");
-
-}
-
-
-// ==========================================
-// UPDATE STATISTICS
-// ==========================================
-
-function updateStatistics() {
-
-    totalAssignments.textContent = assignments.length;
-
-    morningAssignments.textContent = assignments.filter(
-        item => item.shift === "Morning"
-    ).length;
-
-    afternoonAssignments.textContent = assignments.filter(
-        item => item.shift === "Afternoon"
-    ).length;
-
-    nightAssignments.textContent = assignments.filter(
-        item => item.shift === "Night"
-    ).length;
+    alert(editId
+        ? "Assignment updated successfully."
+        : "Assignment created successfully."
+    );
 
 }
 
 
-// ==========================================
-// RENDER ROSTER TABLE
-// ==========================================
+// ======================================================
+// RENDER ROSTER
+// ======================================================
 
 function renderRoster() {
 
-    const search = rosterSearch.value.toLowerCase();
+    if (!tableBody) return;
+
+    const search = rosterSearch.value.trim().toLowerCase();
 
     const selectedDate = rosterDate.value;
 
@@ -603,8 +844,12 @@ function renderRoster() {
     });
 
 
-    rosterCount.textContent =
-        `${filteredAssignments.length} assignment${filteredAssignments.length !== 1 ? "s" : ""}`;
+    if (rosterCount) {
+
+        rosterCount.textContent =
+            `${filteredAssignments.length} assignment${filteredAssignments.length !== 1 ? "s" : ""}`;
+
+    }
 
 
     if (filteredAssignments.length === 0) {
@@ -612,13 +857,23 @@ function renderRoster() {
         tableBody.innerHTML = `
 
             <tr>
+
                 <td colspan="8">
+
                     <div class="empty-roster">
+
                         <div class="empty-icon">▤</div>
+
                         <h3>No duty assignments found</h3>
-                        <p>Create an assignment to start building your hospital duty roster.</p>
+
+                        <p>
+                            Create an assignment to start building your hospital duty roster.
+                        </p>
+
                     </div>
+
                 </td>
+
             </tr>
 
         `;
@@ -643,7 +898,9 @@ function renderRoster() {
 
             <td>${escapeHTML(item.shift)}</td>
 
-            <td>${escapeHTML(item.start)} - ${escapeHTML(item.end)}</td>
+            <td>
+                ${escapeHTML(item.start)} - ${escapeHTML(item.end)}
+            </td>
 
             <td>
                 <span class="status-badge">
@@ -654,6 +911,7 @@ function renderRoster() {
             <td>
 
                 <button
+                    type="button"
                     class="edit-btn"
                     data-action="edit"
                     data-id="${escapeHTML(item.id)}">
@@ -661,6 +919,7 @@ function renderRoster() {
                 </button>
 
                 <button
+                    type="button"
                     class="delete-btn"
                     data-action="delete"
                     data-id="${escapeHTML(item.id)}">
@@ -676,93 +935,179 @@ function renderRoster() {
 }
 
 
-// ==========================================
-// EDIT AND DELETE ASSIGNMENTS
-// ==========================================
+// ======================================================
+// UPDATE STATISTICS
+// ======================================================
 
-tableBody.addEventListener("click", event => {
+function updateStatistics() {
 
-    const button = event.target.closest("button[data-action]");
+    if (totalAssignments) {
+        totalAssignments.textContent = assignments.length;
+    }
 
-    if (!button) return;
+    if (morningAssignments) {
 
-    const id = button.dataset.id;
-
-    const action = button.dataset.action;
-
-    const assignment = assignments.find(
-        item => item.id === id
-    );
-
-    if (!assignment) return;
-
-
-    if (action === "edit") {
-
-        createAssignmentForm(id);
+        morningAssignments.textContent =
+            assignments.filter(item => item.shift === "Morning").length;
 
     }
 
+    if (afternoonAssignments) {
 
-    if (action === "delete") {
+        afternoonAssignments.textContent =
+            assignments.filter(item => item.shift === "Afternoon").length;
 
-        if (confirm(`Delete the duty assignment for ${assignment.staffName}?`)) {
+    }
 
-            assignments = assignments.filter(
-                item => item.id !== id
+    if (nightAssignments) {
+
+        nightAssignments.textContent =
+            assignments.filter(item => item.shift === "Night").length;
+
+    }
+
+}
+
+
+// ======================================================
+// EDIT AND DELETE ASSIGNMENTS
+// ======================================================
+
+if (tableBody) {
+
+    tableBody.addEventListener("click", event => {
+
+        const button = event.target.closest("button[data-action]");
+
+        if (!button) return;
+
+        const id = button.dataset.id;
+
+        const action = button.dataset.action;
+
+        const assignment = assignments.find(
+            item => String(item.id) === String(id)
+        );
+
+        if (!assignment) return;
+
+
+        if (action === "edit") {
+
+            createAssignmentForm(id);
+
+        }
+
+
+        if (action === "delete") {
+
+            const confirmed = confirm(
+                `Are you sure you want to delete the assignment for ${assignment.staffName}?`
             );
 
-            if (!saveRosterData()) return;
+            if (!confirmed) return;
+
+
+            assignments = assignments.filter(
+                item => String(item.id) !== String(id)
+            );
+
+
+            if (!saveAssignments()) return;
+
 
             renderRoster();
+
             updateStatistics();
 
         }
 
-    }
+    });
 
-});
-
-
-// ==========================================
-// SEARCH AND FILTERS
-// ==========================================
-
-rosterSearch.addEventListener("input", renderRoster);
-
-rosterDate.addEventListener("change", renderRoster);
-
-rosterShiftFilter.addEventListener("change", renderRoster);
+}
 
 
-// ==========================================
-// ADD ASSIGNMENT BUTTON
-// ==========================================
+// ======================================================
+// SEARCH AND FILTER EVENTS
+// ======================================================
 
-addAssignmentBtn.addEventListener("click", () => {
+if (rosterSearch) {
 
-    createAssignmentForm();
+    rosterSearch.addEventListener("input", renderRoster);
 
-});
+}
 
 
-// ==========================================
+if (rosterDate) {
+
+    rosterDate.addEventListener("change", renderRoster);
+
+}
+
+
+if (rosterShiftFilter) {
+
+    rosterShiftFilter.addEventListener("change", renderRoster);
+
+}
+
+
+// ======================================================
+// CREATE ASSIGNMENT BUTTON
+// ======================================================
+
+if (addAssignmentBtn) {
+
+    addAssignmentBtn.addEventListener("click", event => {
+
+        event.preventDefault();
+
+        createAssignmentForm();
+
+    });
+
+} else {
+
+    console.error("Create Assignment button not found. Check addAssignmentBtn in roster.html.");
+
+}
+
+
+// ======================================================
 // PRINT ROSTER
-// ==========================================
+// ======================================================
 
-printRosterBtn.addEventListener("click", () => {
+if (printRosterBtn) {
 
-    window.print();
+    printRosterBtn.addEventListener("click", () => {
 
-});
+        window.print();
+
+    });
+
+}
 
 
-// ==========================================
-// INITIALIZE ROSTER
-// ==========================================
+// ======================================================
+// INITIALIZE DUTY ROSTER
+// ======================================================
+
+if (rosterDate && !rosterDate.value) {
+
+    const today = new Date();
+
+    const localDate = new Date(
+        today.getTime() - today.getTimezoneOffset() * 60000
+    ).toISOString().split("T")[0];
+
+    rosterDate.value = localDate;
+
+}
+
 
 updateStatistics();
 
 renderRoster();
 
-console.log("CareRoster Duty Roster loaded successfully.");
+
+console.log("CareRoster Duty Roster initialized successfully.");
