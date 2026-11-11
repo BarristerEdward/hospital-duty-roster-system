@@ -135,9 +135,6 @@ function createAssignmentForm() {
 }
 
 
-
-
-
 // ==========================================
 // OPEN AND CLOSE FORM
 // ==========================================
@@ -220,6 +217,58 @@ function setShiftTime() {
 
 
 // ==========================================
+// CONVERT DUTY TIME TO DATE
+// ==========================================
+
+function getAssignmentTimes(date, start, end) {
+
+    const startTime = new Date(`${date}T${start}`);
+    const endTime = new Date(`${date}T${end}`);
+
+    if (endTime <= startTime) {
+        endTime.setDate(endTime.getDate() + 1);
+    }
+
+    return {
+        start: startTime,
+        end: endTime
+    };
+}
+
+
+// ==========================================
+// CHECK SHIFT CONFLICTS
+// ==========================================
+
+function checkShiftConflict(staffId, date, start, end, editId = null) {
+
+    const newAssignment = getAssignmentTimes(date, start, end);
+
+    return assignments.some(item => {
+
+        if (
+            item.staffId.toLowerCase() !== staffId.toLowerCase() ||
+            item.id === editId
+        ) {
+            return false;
+        }
+
+        const existingAssignment = getAssignmentTimes(
+            item.date,
+            item.start,
+            item.end
+        );
+
+        return (
+            newAssignment.start < existingAssignment.end &&
+            existingAssignment.start < newAssignment.end
+        );
+
+    });
+}
+
+
+// ==========================================
 // SAVE ASSIGNMENT
 // ==========================================
 
@@ -248,14 +297,12 @@ function saveAssignment(event) {
         return;
     }
 
-    const duplicate = assignments.some(item =>
-        item.staffId.toLowerCase() === staffId.toLowerCase() &&
-        item.date === date &&
-        item.id !== editId
-    );
+    if (checkShiftConflict(staffId, date, start, end, editId)) {
 
-    if (duplicate) {
-        alert("This staff member already has an assignment on this date.");
+        alert(
+            "Scheduling Conflict!\n\nThis staff member already has a duty assignment during the selected time."
+        );
+
         return;
     }
 
@@ -346,7 +393,7 @@ function renderRoster() {
             row.innerHTML = `
                 <td>
                     <div class="staff-cell">
-                        <div class="staff-avatar">${initials}</div>
+                        <div class="staff-avatar">${escapeHTML(initials)}</div>
                         <div>
                             <div class="staff-name">${escapeHTML(item.staffName)}</div>
                             <div class="staff-role">Hospital Staff</div>
@@ -371,8 +418,8 @@ function renderRoster() {
                 </td>
 
                 <td>
-                    <button type="button" data-action="edit" data-id="${item.id}">Edit</button>
-                    <button type="button" data-action="delete" data-id="${item.id}">Delete</button>
+                    <button type="button" data-action="edit" data-id="${escapeHTML(item.id)}">Edit</button>
+                    <button type="button" data-action="delete" data-id="${escapeHTML(item.id)}">Delete</button>
                 </td>
             `;
 
@@ -551,7 +598,6 @@ rosterShiftFilter.addEventListener("change", renderRoster);
 // ==========================================
 
 createAssignmentForm();
-
 
 rosterDate.value = new Date().toISOString().split("T")[0];
 
