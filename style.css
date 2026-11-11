@@ -2410,3 +2410,246 @@ footer {
         width: 100%;
     }
 }
+/* ==========================================
+   SMART ROSTER GENERATOR
+========================================== */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    margin-top: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #343750;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid #e3e5ef;
+    border-radius: 10px;
+    background: #fff;
+    color: #20243a;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #6558e8;
+    box-shadow: 0 0 0 3px rgba(101, 88, 232, 0.10);
+}
+
+.generator-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 25px;
+    padding: 16px;
+    border: 1px solid #e8e5ff;
+    border-radius: 12px;
+    background: #f7f6ff;
+}
+
+.generator-note span {
+    color: #6558e8;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.generator-note p {
+    margin: 0;
+    color: #65677e;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.primary-button,
+.secondary-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 43px;
+    padding: 0 19px;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.primary-button {
+    border: 1px solid #6558e8;
+    background: #6558e8;
+    color: #fff;
+}
+
+.primary-button:hover {
+    background: #5143d0;
+    border-color: #5143d0;
+    transform: translateY(-1px);
+}
+
+.secondary-button {
+    border: 1px solid #e4e5ee;
+    background: #fff;
+    color: #44465c;
+}
+
+.secondary-button:hover {
+    border-color: #6558e8;
+    color: #6558e8;
+}
+
+.primary-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.content-card .section-heading {
+    gap: 15px;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.data-table {
+    width: 100%;
+    min-width: 700px;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.data-table th {
+    padding: 15px 14px;
+    background: #f8f8fc;
+    color: #777990;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #ececf3;
+}
+
+.data-table td {
+    padding: 16px 14px;
+    border-bottom: 1px solid #f0f0f5;
+    color: #42445a;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.data-table tbody tr:hover {
+    background: #fafaff;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table .empty-state {
+    padding: 40px 15px;
+    text-align: center;
+}
+
+.data-table .empty-state h3 {
+    margin: 12px 0 7px;
+    color: #34364d;
+    font-size: 16px;
+}
+
+.data-table .empty-state p {
+    max-width: 400px;
+    margin: auto;
+    color: #85869a;
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: normal;
+}
+
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 16px;
+    margin-top: 10px;
+    border-top: 1px solid #eeeeF4;
+    color: #85869a;
+    font-size: 12px;
+}
+
+/* RESPONSIVE DESIGN */
+
+@media (max-width: 768px) {
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 17px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .form-actions button {
+        width: 100%;
+    }
+
+    .content-card .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .content-card .section-heading .topbar-actions {
+        width: 100%;
+    }
+
+    .content-card .section-heading .topbar-actions button {
+        flex: 1;
+    }
+
+    .table-footer {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .generator-note {
+        padding: 13px;
+    }
+
+    .primary-button,
+    .secondary-button {
+        min-height: 45px;
+    }
+}
