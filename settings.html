@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | CareRoster</title>
+
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-icon">+</span>
+            <span>CareRoster</span>
+        </div>
+
+        <p class="sidebar-label">WORKSPACE</p>
+
+        <nav class="sidebar-nav">
+            <a href="index.html">Dashboard</a>
+            <a href="staff.html">Staff Management</a>
+            <a href="departments.html">Departments</a>
+            <a href="shifts.html">Shift Management</a>
+            <a href="roster.html">Duty Roster</a>
+            <a href="reports.html">Reports</a>
+            <a href="settings.html" class="active">Settings</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span>Hospital Staff Management</span>
+            <small>CareRoster System</small>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h2>Settings</h2>
+                <p>Manage your system preferences.</p>
+            </div>
+        </header>
+
+        <section class="settings-content">
+
+            <div class="page-heading">
+                <div>
+                    <h1>System Settings</h1>
+                    <p>Configure basic CareRoster preferences.</p>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-card-heading">
+                    <h3>Hospital Information</h3>
+                    <p>Update the hospital details displayed in the system.</p>
+                </div>
+
+                <form id="hospitalSettingsForm">
+
+                    <div class="settings-form-grid">
+
+                        <div class="form-group">
+                            <label for="hospitalName">Hospital Name</label>
+                            <input type="text" id="hospitalName"
+                                placeholder="Enter hospital name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hospitalLocation">Hospital Location</label>
+                            <input type="text" id="hospitalLocation"
+                                placeholder="Enter hospital location">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hospitalEmail">Contact Email</label>
+                            <input type="email" id="hospitalEmail"
+                                placeholder="Enter contact email">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hospitalPhone">Contact Number</label>
+                            <input type="tel" id="hospitalPhone"
+                                placeholder="Enter contact number">
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="primary-btn">
+                        Save Changes
+                    </button>
+
+                    <p id="settingsMessage"></p>
+
+                </form>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-card-heading">
+                    <h3>Roster Preferences</h3>
+                    <p>Set the default working hours for duty shifts.</p>
+                </div>
+
+                <form id="rosterSettingsForm">
+
+                    <div class="settings-form-grid">
+
+                        <div class="form-group">
+                            <label for="morningStart">Morning Shift Starts</label>
+                            <input type="time" id="morningStart" value="07:00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="morningEnd">Morning Shift Ends</label>
+                            <input type="time" id="morningEnd" value="15:00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="afternoonStart">Afternoon Shift Starts</label>
+                            <input type="time" id="afternoonStart" value="15:00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="afternoonEnd">Afternoon Shift Ends</label>
+                            <input type="time" id="afternoonEnd" value="23:00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nightStart">Night Shift Starts</label>
+                            <input type="time" id="nightStart" value="23:00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nightEnd">Night Shift Ends</label>
+                            <input type="time" id="nightEnd" value="07:00">
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="primary-btn">
+                        Save Preferences
+                    </button>
+
+                    <p id="rosterMessage"></p>
+
+                </form>
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="./settings.js"></script>
+
+</body>
+</html>
