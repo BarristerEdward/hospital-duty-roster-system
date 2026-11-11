@@ -135,138 +135,7 @@ function createAssignmentForm() {
 }
 
 
-// ==========================================
-// MODAL STYLING
-// ==========================================
 
-function addModalStyles() {
-
-    const style = document.createElement("style");
-
-    style.textContent = `
-        #assignmentModal {
-            position: fixed;
-            inset: 0;
-            background: rgba(25, 25, 45, 0.55);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 9999;
-        }
-
-        .assignment-modal-content {
-            background: white;
-            width: 100%;
-            max-width: 620px;
-            padding: 28px;
-            border-radius: 17px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,.15);
-        }
-
-        .assignment-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 25px;
-        }
-
-        .assignment-modal-header h2 {
-            font-size: 20px;
-            color: #20243a;
-            margin-bottom: 5px;
-        }
-
-        .assignment-modal-header p {
-            font-size: 12px;
-            color: #9296a9;
-        }
-
-        #closeAssignmentModal {
-            border: none;
-            background: #f2f0ff;
-            color: #6558e8;
-            width: 32px;
-            height: 32px;
-            border-radius: 9px;
-            font-size: 22px;
-            cursor: pointer;
-        }
-
-        .assignment-form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 17px;
-        }
-
-        .assignment-form-grid label {
-            display: block;
-            font-size: 12px;
-            font-weight: 700;
-            color: #555b70;
-            margin-bottom: 7px;
-        }
-
-        .assignment-form-grid input,
-        .assignment-form-grid select {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 12px;
-            border: 1px solid #e7e8ef;
-            border-radius: 9px;
-            background: white;
-            color: #30344a;
-            font-family: inherit;
-            font-size: 13px;
-            outline: none;
-        }
-
-        .assignment-form-grid input:focus,
-        .assignment-form-grid select:focus {
-            border-color: #6558e8;
-        }
-
-        .assignment-form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 25px;
-        }
-
-        .assignment-form-actions button {
-            border: none;
-            padding: 12px 18px;
-            border-radius: 9px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 12px;
-        }
-
-        #cancelAssignment {
-            background: #f1f1f6;
-            color: #555b70;
-        }
-
-        #saveAssignment {
-            background: #6558e8;
-            color: white;
-        }
-
-        @media(max-width: 550px) {
-            .assignment-form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .assignment-modal-content {
-                padding: 20px;
-            }
-        }
-    `;
-
-    document.head.appendChild(style);
-}
 
 
 // ==========================================
@@ -682,7 +551,7 @@ rosterShiftFilter.addEventListener("change", renderRoster);
 // ==========================================
 
 createAssignmentForm();
-addModalStyles();
+
 
 rosterDate.value = new Date().toISOString().split("T")[0];
 
