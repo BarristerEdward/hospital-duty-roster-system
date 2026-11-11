@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Staff Attendance | CareRoster</title>
+
+    <link rel="stylesheet" href="./style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <span class="brand-icon">+</span>
+            <span>CareRoster</span>
+        </div>
+
+        <div class="sidebar-section">
+            WORKSPACE
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="index.html" class="nav-item">
+                <span>▦</span> Dashboard
+            </a>
+
+            <a href="staff.html" class="nav-item">
+                <span>♙</span> Staff Management
+            </a>
+
+            <a href="departments.html" class="nav-item">
+                <span>▤</span> Departments
+            </a>
+
+            <a href="shifts.html" class="nav-item">
+                <span>◷</span> Shift Management
+            </a>
+
+            <a href="roster.html" class="nav-item">
+                <span>▦</span> Duty Roster
+            </a>
+
+            <a href="availability.html" class="nav-item">
+                <span>◈</span> Availability & Leave
+            </a>
+
+            <a href="auto-roster.html" class="nav-item">
+                <span>✦</span> Smart Roster Generator
+            </a>
+
+            <a href="attendance.html" class="nav-item active">
+                <span>✓</span> Staff Attendance
+            </a>
+
+            <a href="reports.html" class="nav-item">
+                <span>▥</span> Reports
+            </a>
+
+            <a href="settings.html" class="nav-item">
+                <span>⚙</span> Settings
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="user-avatar">CR</div>
+                <div>
+                    <strong>Administrator</strong>
+                    <small>System Manager</small>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main-content">
+
+        <!-- PAGE HEADER -->
+
+        <header class="page-header">
+
+            <div>
+                <p class="page-eyebrow">WORKFORCE MANAGEMENT</p>
+
+                <h1>Staff Attendance</h1>
+
+                <p class="page-description">
+                    Monitor staff attendance and track daily shift participation.
+                </p>
+            </div>
+
+            <div class="attendance-header-actions">
+
+                <button type="button" id="refreshAttendanceBtn" class="secondary-button">
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- DATE AND SHIFT FILTERS -->
+
+        <section class="attendance-toolbar">
+
+            <div class="attendance-toolbar-left">
+
+                <div class="form-group">
+                    <label for="attendanceDate">Attendance Date</label>
+
+                    <input
+                        type="date"
+                        id="attendanceDate"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="attendanceShiftFilter">Shift</label>
+
+                    <select id="attendanceShiftFilter">
+
+                        <option value="">All Shifts</option>
+                        <option value="Morning">Morning</option>
+                        <option value="Afternoon">Afternoon</option>
+                        <option value="Night">Night</option>
+
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="attendance-toolbar-right">
+
+                <span class="attendance-date-label" id="attendanceDateLabel">
+                    Today's Attendance
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- STATISTICS -->
+
+        <section class="attendance-stats">
+
+            <div class="attendance-stat-card">
+
+                <div class="attendance-stat-icon total-icon">♙</div>
+
+                <div>
+                    <p>Scheduled Staff</p>
+                    <h2 id="scheduledStaff">0</h2>
+                    <small>Staff assigned to shifts</small>
+                </div>
+
+            </div>
+
+
+            <div class="attendance-stat-card">
+
+                <div class="attendance-stat-icon present-icon">✓</div>
+
+                <div>
+                    <p>Present</p>
+                    <h2 id="presentStaff">0</h2>
+                    <small>Marked as present</small>
+                </div>
+
+            </div>
+
+
+            <div class="attendance-stat-card">
+
+                <div class="attendance-stat-icon late-icon">◷</div>
+
+                <div>
+                    <p>Late</p>
+                    <h2 id="lateStaff">0</h2>
+                    <small>Reported late</small>
+                </div>
+
+            </div>
+
+
+            <div class="attendance-stat-card">
+
+                <div class="attendance-stat-icon absent-icon">!</div>
+
+                <div>
+                    <p>Absent</p>
+                    <h2 id="absentStaff">0</h2>
+                    <small>Not present</small>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ATTENDANCE TABLE -->
+
+        <section class="attendance-panel">
+
+            <div class="attendance-panel-header">
+
+                <div>
+                    <h2>Daily Attendance Register</h2>
+
+                    <p>
+                        Record and manage attendance for scheduled staff.
+                    </p>
+                </div>
+
+                <div class="attendance-panel-actions">
+
+                    <button type="button" id="markAllPresentBtn" class="secondary-button">
+                        Mark All Present
+                    </button>
+
+                    <button type="button" id="saveAttendanceBtn" class="primary-button">
+                        Save Attendance
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- SEARCH -->
+
+            <div class="attendance-search-row">
+
+                <div class="attendance-search">
+
+                    <span>⌕</span>
+
+                    <input
+                        type="search"
+                        id="attendanceSearch"
+                        placeholder="Search staff name, ID or department..."
+                    >
+
+                </div>
+
+                <span id="attendanceRecordCount">
+                    0 staff members
+                </span>
+
+            </div>
+
+
+            <!-- TABLE -->
+
+            <div class="table-container">
+
+                <table class="data-table attendance-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>STAFF MEMBER</th>
+                            <th>STAFF ID</th>
+                            <th>DEPARTMENT</th>
+                            <th>SHIFT</th>
+                            <th>SHIFT TIME</th>
+                            <th>ATTENDANCE STATUS</th>
+                            <th>REMARKS</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="attendanceTableBody">
+
+                        <tr>
+
+                            <td colspan="7" class="empty-state">
+                                Select a date to load scheduled staff.
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div class="table-footer">
+
+                <span id="attendanceFooterText">
+                    Attendance records will appear here.
+                </span>
+
+                <button type="button" id="printAttendanceBtn" class="secondary-button">
+                    Print Register
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- INFORMATION PANEL -->
+
+        <section class="attendance-information">
+
+            <div class="information-icon">ⓘ</div>
+
+            <div>
+
+                <h3>Attendance Management</h3>
+
+                <p>
+                    Attendance is generated from existing duty roster assignments.
+                    Select the correct date, record each staff member's attendance,
+                    and save the register. Saved attendance records can be reviewed
+                    later.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="./attendance.js"></script>
+
+</body>
+</html>
