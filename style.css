@@ -2175,3 +2175,238 @@ footer {
         width: 100%;
     }
 }
+/* ==========================================
+   CAREROSTER - LEAVE MODAL
+========================================== */
+
+.leave-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(22, 24, 45, 0.55);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 9999;
+    overflow-y: auto;
+}
+
+.leave-modal {
+    background: #fff;
+    width: 100%;
+    max-width: 620px;
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+    animation: leaveModalIn 0.25s ease;
+}
+
+@keyframes leaveModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.leave-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 25px;
+}
+
+.leave-modal-header h2 {
+    color: #20243a;
+    font-size: 21px;
+    margin-bottom: 7px;
+}
+
+.leave-modal-header p {
+    color: #999dad;
+    font-size: 12px;
+}
+
+.leave-close-btn {
+    border: none;
+    background: #f3f2fb;
+    color: #6558e8;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    font-size: 23px;
+    cursor: pointer;
+}
+
+.leave-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 19px;
+}
+
+.leave-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.leave-form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #45495d;
+}
+
+.leave-form-group input,
+.leave-form-group select,
+.leave-form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e8e9f0;
+    border-radius: 9px;
+    background: #fafaff;
+    color: #34384e;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.leave-form-group input:focus,
+.leave-form-group select:focus,
+.leave-form-group textarea:focus {
+    border-color: #6558e8;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(101, 88, 232, 0.08);
+}
+
+.leave-form-group textarea {
+    resize: vertical;
+}
+
+.leave-full-width {
+    grid-column: 1 / -1;
+}
+
+.leave-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f5;
+}
+
+.leave-form-actions button {
+    padding: 12px 19px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.leave-cancel-btn {
+    background: #f5f5fa;
+    color: #55596c;
+    border: 1px solid #e9e9f0;
+}
+
+.leave-save-btn {
+    background: #6558e8;
+    color: #fff;
+    border: none;
+}
+
+.leave-save-btn:hover {
+    background: #5144d0;
+}
+
+/* STATUS BADGES */
+
+.leave-status {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.leave-pending {
+    background: #fff5df;
+    color: #c48a20;
+}
+
+.leave-approved {
+    background: #e7f8ef;
+    color: #21945a;
+}
+
+.leave-rejected {
+    background: #ffebeb;
+    color: #d64c4c;
+}
+
+/* ACTION BUTTONS */
+
+.leave-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.leave-actions button {
+    border: none;
+    padding: 7px 9px;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.leave-edit-btn {
+    background: #f0eeff;
+    color: #6558e8;
+}
+
+.leave-approve-btn {
+    background: #e7f8ef;
+    color: #21945a;
+}
+
+.leave-reject-btn {
+    background: #fff5df;
+    color: #c48a20;
+}
+
+.leave-delete-btn {
+    background: #ffebeb;
+    color: #d64c4c;
+}
+
+/* MOBILE MODAL */
+
+@media (max-width: 600px) {
+    .leave-modal {
+        padding: 20px;
+    }
+
+    .leave-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .leave-full-width {
+        grid-column: auto;
+    }
+
+    .leave-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .leave-form-actions button {
+        width: 100%;
+    }
+}
