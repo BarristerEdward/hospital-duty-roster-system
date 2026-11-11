@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duty Roster | CareRoster</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <span>+</span> CareRoster
+        </div>
+
+        <div class="sidebar-label">WORKSPACE</div>
+
+        <nav class="sidebar-nav">
+            <a href="./index.html">Dashboard</a>
+            <a href="./staff.html">Staff Management</a>
+            <a href="./departments.html">Departments</a>
+            <a href="./shifts.html">Shift Management</a>
+            <a href="./roster.html" class="active">Duty Roster</a>
+            <a href="./reports.html">Reports</a>
+            <a href="./settings.html">Settings</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-avatar">CR</div>
+            <div>
+                <strong>Administrator</strong>
+                <small>System Admin</small>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <span>Hospital Management / Duty Roster</span>
+            </div>
+        </header>
+
+        <section class="roster-content">
+
+            <div class="roster-heading">
+                <div>
+                    <h1>Duty Roster</h1>
+                    <p>Organise staff schedules and manage daily shift assignments.</p>
+                </div>
+
+                <div class="roster-actions">
+                    <button type="button" class="roster-btn roster-btn-light" id="printRosterBtn">
+                        Print Roster
+                    </button>
+
+                    <button type="button" class="roster-btn roster-btn-primary" id="addAssignmentBtn">
+                        + Create Assignment
+                    </button>
+                </div>
+            </div>
+
+            <div class="roster-stats">
+
+                <div class="roster-stat">
+                    <div class="roster-stat-top">
+                        <span class="roster-stat-label">Total Assignments</span>
+                        <span class="roster-stat-icon">▤</span>
+                    </div>
+                    <h2 id="totalAssignments">0</h2>
+                    <small>Recorded duty assignments</small>
+                </div>
+
+                <div class="roster-stat">
+                    <div class="roster-stat-top">
+                        <span class="roster-stat-label">Morning Shift</span>
+                        <span class="roster-stat-icon">☀</span>
+                    </div>
+                    <h2 id="morningAssignments">0</h2>
+                    <small>Morning duty assignments</small>
+                </div>
+
+                <div class="roster-stat">
+                    <div class="roster-stat-top">
+                        <span class="roster-stat-label">Afternoon Shift</span>
+                        <span class="roster-stat-icon">◷</span>
+                    </div>
+                    <h2 id="afternoonAssignments">0</h2>
+                    <small>Afternoon duty assignments</small>
+                </div>
+
+                <div class="roster-stat">
+                    <div class="roster-stat-top">
+                        <span class="roster-stat-label">Night Shift</span>
+                        <span class="roster-stat-icon">☾</span>
+                    </div>
+                    <h2 id="nightAssignments">0</h2>
+                    <small>Night duty assignments</small>
+                </div>
+
+            </div>
+
+            <section class="roster-panel">
+
+                <div class="roster-panel-header">
+                    <div>
+                        <h2>Staff Duty Schedule</h2>
+                        <p>View and manage assigned hospital staff shifts.</p>
+                    </div>
+
+                    <div class="roster-controls">
+                        <input type="date" id="rosterDate">
+
+                        <input type="search" id="rosterSearch" placeholder="Search staff...">
+
+                        <select id="rosterShiftFilter">
+                            <option value="">All Shifts</option>
+                            <option value="Morning">Morning</option>
+                            <option value="Afternoon">Afternoon</option>
+                            <option value="Night">Night</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="roster-table-wrap">
+                    <table class="roster-table">
+
+                        <thead>
+                            <tr>
+                                <th>Staff Member</th>
+                                <th>Staff ID</th>
+                                <th>Department</th>
+                                <th>Duty Date</th>
+                                <th>Shift</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="rosterTableBody">
+                            <tr>
+                                <td colspan="8">
+                                    <div class="empty-roster">
+                                        <div class="empty-icon">▤</div>
+                                        <h3>No duty assignments yet</h3>
+                                        <p>Create an assignment to start building your hospital duty roster.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <div class="roster-footer">
+                    <span id="rosterCount">0 assignments</span>
+                    <span>CareRoster Duty Management</span>
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="./roster.js"></script>
+
+</body>
+</html>
