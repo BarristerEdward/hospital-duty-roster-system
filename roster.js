@@ -5,9 +5,29 @@
 const ROSTER_KEY = "careroster_roster";
 const LEAVE_KEY = "careroster_availability";
 
-let assignments = JSON.parse(localStorage.getItem(ROSTER_KEY)) || [];
-
+let assignments = [];
 let editingAssignmentId = null;
+
+
+// ==========================================
+// LOAD SAVED ASSIGNMENTS SAFELY
+// ==========================================
+
+try {
+    const savedAssignments = localStorage.getItem(ROSTER_KEY);
+
+    assignments = savedAssignments
+        ? JSON.parse(savedAssignments)
+        : [];
+
+    if (!Array.isArray(assignments)) {
+        assignments = [];
+    }
+
+} catch (error) {
+    console.error("Error loading roster data:", error);
+    assignments = [];
+}
 
 
 // ==========================================
@@ -36,7 +56,19 @@ const printRosterBtn = document.getElementById("printRosterBtn");
 // ==========================================
 
 function saveRosterData() {
-    localStorage.setItem(ROSTER_KEY, JSON.stringify(assignments));
+    try {
+        localStorage.setItem(
+            ROSTER_KEY,
+            JSON.stringify(assignments)
+        );
+
+        return true;
+
+    } catch (error) {
+        console.error("Error saving roster:", error);
+        alert("Unable to save assignment. Please check your browser storage.");
+        return false;
+    }
 }
 
 
@@ -60,7 +92,6 @@ function escapeHTML(value) {
 // ==========================================
 
 function formatDate(date) {
-
     if (!date) return "-";
 
     const parts = date.split("-");
@@ -107,9 +138,8 @@ function getShiftTimes(shift) {
 
 function getAssignmentTimes(date, start, end) {
 
-    const startDate = new Date(`${date}T${start}`);
-
-    const endDate = new Date(`${date}T${end}`);
+    const startDate = new Date(`${date}T${start}:00`);
+    const endDate = new Date(`${date}T${end}:00`);
 
     if (endDate <= startDate) {
         endDate.setDate(endDate.getDate() + 1);
@@ -161,9 +191,21 @@ function checkShiftConflict(staffId, date, start, end, editId = null) {
 
 function checkApprovedLeaveConflict(staffId, date, start, end) {
 
-    const leaveRecords = JSON.parse(
-        localStorage.getItem(LEAVE_KEY)
-    ) || [];
+    let leaveRecords = [];
+
+    try {
+        leaveRecords = JSON.parse(
+            localStorage.getItem(LEAVE_KEY)
+        ) || [];
+
+        if (!Array.isArray(leaveRecords)) {
+            leaveRecords = [];
+        }
+
+    } catch (error) {
+        console.error("Error loading leave records:", error);
+        leaveRecords = [];
+    }
 
     const assignment = getAssignmentTimes(date, start, end);
 
@@ -180,7 +222,6 @@ function checkApprovedLeaveConflict(staffId, date, start, end) {
         }
 
         const leaveStart = new Date(`${leave.startDate}T00:00:00`);
-
         const leaveEnd = new Date(`${leave.endDate}T23:59:59`);
 
         return (
@@ -196,6 +237,8 @@ function checkApprovedLeaveConflict(staffId, date, start, end) {
 // ==========================================
 
 function createAssignmentForm(editId = null) {
+
+    if (document.getElementById("assignmentModal")) return;
 
     editingAssignmentId = editId;
 
@@ -214,7 +257,7 @@ function createAssignmentForm(editId = null) {
             <div class="assignment-modal-header">
 
                 <div>
-                    <h2 id="assignmentTitle">
+                    <h2>
                         ${existing ? "Edit Assignment" : "Create Duty Assignment"}
                     </h2>
 
@@ -378,7 +421,6 @@ function createAssignmentForm(editId = null) {
         const times = getShiftTimes(shiftInput.value);
 
         document.getElementById("assignmentStart").value = times.start;
-
         document.getElementById("assignmentEnd").value = times.end;
 
     });
@@ -464,17 +506,11 @@ function saveAssignment(closeModal) {
         id: editId || Date.now().toString(),
 
         staffName,
-
         staffId,
-
         department,
-
         date,
-
         shift,
-
         start,
-
         end,
 
         status: "Assigned"
@@ -495,13 +531,14 @@ function saveAssignment(closeModal) {
     }
 
 
-    saveRosterData();
+    if (!saveRosterData()) return;
 
     renderRoster();
-
     updateStatistics();
 
     closeModal();
+
+    alert(editId ? "Assignment updated successfully." : "Assignment created successfully.");
 
 }
 
@@ -546,11 +583,11 @@ function renderRoster() {
 
         const matchesSearch =
 
-            item.staffName.toLowerCase().includes(search) ||
+            String(item.staffName || "").toLowerCase().includes(search) ||
 
-            item.staffId.toLowerCase().includes(search) ||
+            String(item.staffId || "").toLowerCase().includes(search) ||
 
-            item.department.toLowerCase().includes(search);
+            String(item.department || "").toLowerCase().includes(search);
 
 
         const matchesDate =
@@ -575,8 +612,12 @@ function renderRoster() {
         tableBody.innerHTML = `
 
             <tr>
-                <td colspan="8" class="empty-state">
-                    No duty assignments found.
+                <td colspan="8">
+                    <div class="empty-roster">
+                        <div class="empty-icon">▤</div>
+                        <h3>No duty assignments found</h3>
+                        <p>Create an assignment to start building your hospital duty roster.</p>
+                    </div>
                 </td>
             </tr>
 
@@ -671,10 +712,9 @@ tableBody.addEventListener("click", event => {
                 item => item.id !== id
             );
 
-            saveRosterData();
+            if (!saveRosterData()) return;
 
             renderRoster();
-
             updateStatistics();
 
         }
@@ -724,3 +764,5 @@ printRosterBtn.addEventListener("click", () => {
 updateStatistics();
 
 renderRoster();
+
+console.log("CareRoster Duty Roster loaded successfully.");
