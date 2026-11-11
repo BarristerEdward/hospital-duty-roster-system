@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f8fc">
+    <title>Smart Roster Generator | CareRoster</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <a class="brand" href="index.html">
+            <span class="brand-icon">+</span>
+            <span>Care<span class="brand-accent">Roster</span></span>
+        </a>
+
+        <p class="nav-label">WORKSPACE</p>
+
+        <nav class="navigation">
+            <a class="nav-link" href="index.html">
+                <span>▦</span> Dashboard
+            </a>
+
+            <a class="nav-link" href="staff.html">
+                <span>♙</span> Staff Management
+            </a>
+
+            <a class="nav-link" href="departments.html">
+                <span>▤</span> Departments
+            </a>
+
+            <a class="nav-link" href="shifts.html">
+                <span>◷</span> Shift Management
+            </a>
+
+            <a class="nav-link" href="roster.html">
+                <span>▦</span> Duty Roster
+            </a>
+
+            <a class="nav-link" href="availability.html">
+                <span>▧</span> Availability & Leave
+            </a>
+
+            <a class="nav-link active" href="auto-roster.html">
+                <span>✦</span> Smart Roster Generator
+            </a>
+        </nav>
+
+        <p class="nav-label">SYSTEM</p>
+
+        <nav class="navigation">
+            <a class="nav-link" href="reports.html">
+                <span>▧</span> Reports
+            </a>
+
+            <a class="nav-link" href="settings.html">
+                <span>⚙</span> Settings
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="avatar">A</div>
+            <div>
+                <strong>Administrator</strong>
+                <small>System Admin</small>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">WORKFORCE AUTOMATION</p>
+                <h1>Smart Roster Generator</h1>
+                <p class="subtitle">
+                    Generate organized staff duty schedules automatically.
+                </p>
+            </div>
+
+            <div class="topbar-actions">
+                <span class="status-dot"></span>
+                <span class="system-status">Scheduling assistant</span>
+            </div>
+        </header>
+
+        <!-- INTRO BANNER -->
+        <section class="welcome-banner">
+            <div>
+                <p class="welcome-tag">SMART SCHEDULING</p>
+                <h2>Plan shifts with less effort.</h2>
+                <p>
+                    Configure your scheduling requirements and let CareRoster
+                    prepare a proposed duty schedule.
+                </p>
+            </div>
+
+            <div class="banner-symbol">✦</div>
+        </section>
+
+        <!-- GENERATOR FORM -->
+        <section class="content-card">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Generation Settings</h2>
+                    <p>Choose the requirements for your new duty roster.</p>
+                </div>
+            </div>
+
+            <form id="autoRosterForm">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="departmentSelect">Department</label>
+
+                        <select id="departmentSelect" required>
+                            <option value="">Select department</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="startDate">Start Date</label>
+
+                        <input type="date" id="startDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endDate">End Date</label>
+
+                        <input type="date" id="endDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="shiftPattern">Shift Pattern</label>
+
+                        <select id="shiftPattern" required>
+                            <option value="all">All Shifts</option>
+                            <option value="morning">Morning Only</option>
+                            <option value="afternoon">Afternoon Only</option>
+                            <option value="night">Night Only</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="staffPerShift">Staff Required Per Shift</label>
+
+                        <input
+                            type="number"
+                            id="staffPerShift"
+                            min="1"
+                            value="2"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rotationMethod">Assignment Method</label>
+
+                        <select id="rotationMethod" required>
+                            <option value="balanced">Balanced Rotation</option>
+                            <option value="sequential">Sequential Rotation</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="generator-note">
+                    <span>ⓘ</span>
+                    <p>
+                        Approved leave and existing duty assignments will be
+                        considered during schedule generation.
+                    </p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="reset" class="secondary-button">
+                        Reset Settings
+                    </button>
+
+                    <button type="submit" class="primary-button" id="generateRosterBtn">
+                        ✦ Generate Roster
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+        <!-- GENERATION SUMMARY -->
+        <section class="stats-grid">
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span>Proposed Assignments</span>
+                    <span class="stat-icon purple">▦</span>
+                </div>
+                <h3 id="proposedAssignments">0</h3>
+                <p>Generated duty assignments</p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span>Staff Assigned</span>
+                    <span class="stat-icon green">♙</span>
+                </div>
+                <h3 id="assignedStaff">0</h3>
+                <p>Unique staff members</p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span>Unfilled Shifts</span>
+                    <span class="stat-icon orange">!</span>
+                </div>
+                <h3 id="unfilledShifts">0</h3>
+                <p>Shifts requiring attention</p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-top">
+                    <span>Scheduling Conflicts</span>
+                    <span class="stat-icon blue">✓</span>
+                </div>
+                <h3 id="generationConflicts">0</h3>
+                <p>Detected scheduling conflicts</p>
+            </article>
+
+        </section>
+
+        <!-- PROPOSED ROSTER -->
+        <section class="content-card">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Proposed Duty Roster</h2>
+                    <p>Review generated assignments before saving them.</p>
+                </div>
+
+                <div class="topbar-actions">
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        id="clearProposalBtn"
+                    >
+                        Clear
+                    </button>
+
+                    <button
+                        type="button"
+                        class="primary-button"
+                        id="saveGeneratedRosterBtn"
+                        disabled
+                    >
+                        Save Roster
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Staff Name</th>
+                            <th>Staff ID</th>
+                            <th>Department</th>
+                            <th>Shift</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="generatedRosterBody">
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <div class="empty-icon">✦</div>
+                                    <h3>No proposed roster yet</h3>
+                                    <p>
+                                        Configure your scheduling settings
+                                        and generate a roster to see assignments here.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <span id="generatedRosterCount">0 assignments</span>
+                <span>Review before saving</span>
+            </div>
+
+        </section>
+
+        <footer class="page-footer">
+            <span>CareRoster</span>
+            <span>Hospital Staff Duty Roster Management System</span>
+        </footer>
+
+    </main>
+</div>
+
+<script src="auto-roster.js"></script>
+</body>
+</html>
